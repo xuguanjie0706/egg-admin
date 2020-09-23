@@ -6,7 +6,7 @@ const { Schema } = mongoose; // 声明Schema
 
 
 /* **/
-const ConfigSchema = Schema({
+const GoodsSchema = Schema({
   name: {
     type: String,
     required: [true, "名字必须添加"]
@@ -14,12 +14,16 @@ const ConfigSchema = Schema({
   img: {
     type: String,
   },
+  _member: {
+    type: Schema.Types.ObjectId,
+    ref: "User"
+  },
   value: {
     type: String,
-    alias: "myValue"
-  }, // 配置内容
-  type: String, // 配置类型
-  unit: String, // 配置单位
+  }, // 描述
+  price: {
+    type: Number,
+  },
   sort: {
     type: Number,
     default: 0
@@ -35,4 +39,4 @@ const ConfigSchema = Schema({
 
 
 // 发布模型
-module.exports = mongoose.model("Config", ConfigSchema);
+module.exports = mongoose.model("Goods", GoodsSchema);

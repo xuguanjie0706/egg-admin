@@ -7,6 +7,7 @@ const { checkToken } = require("../../untils/TokenSDK/index");
 const {
   initSchemas
 } = require("../../database/init.js");
+const _ = require("lodash");
 
 initSchemas();
 
@@ -18,7 +19,7 @@ class BaseController extends Controller {
 for (const i in mongoose.models) {
   const Model = mongoose.models[i];
 
-  BaseController.prototype[`${i.toLocaleLowerCase()}And${"editoradd"}`] = async (ctx) => {
+  BaseController.prototype[`${_.camelCase(i)}And${"editoradd"}`] = async (ctx) => {
     let query = {};
     try {
       const { token } = ctx.request.header;
@@ -28,7 +29,7 @@ for (const i in mongoose.models) {
         throw new Error("token失效或不存在");
       }
 
-      if (i.toLocaleLowerCase() === "user" && tokenData.isUser !== "1") {
+      if (_.camelCase(i) === "user" && tokenData.isUser !== "1") {
         throw new Error("权限不足");
       }
       const data = ctx.request.body;
@@ -53,7 +54,7 @@ for (const i in mongoose.models) {
       ctx.body = doErr(error);
     }
   };
-  BaseController.prototype[`${i.toLocaleLowerCase()}And${"pagesimple"}`] = async (ctx) => {
+  BaseController.prototype[`${_.camelCase(i)}And${"pagesimple"}`] = async (ctx) => {
     let query = {};
     try {
       const { token } = ctx.request.header;
@@ -85,7 +86,7 @@ for (const i in mongoose.models) {
     }
   };
 
-  BaseController.prototype[`${i.toLocaleLowerCase()}And${"count"}`] = async (ctx) => {
+  BaseController.prototype[`${_.camelCase(i)}And${"count"}`] = async (ctx) => {
     let query = {};
     try {
       const { token } = ctx.request.header;
@@ -103,7 +104,7 @@ for (const i in mongoose.models) {
     }
   };
 
-  BaseController.prototype[`${i.toLocaleLowerCase()}And${"allbysimple"}`] = async (ctx) => {
+  BaseController.prototype[`${_.camelCase(i)}And${"allbysimple"}`] = async (ctx) => {
     let query = {};
     try {
       const { token } = ctx.request.header;
@@ -125,7 +126,7 @@ for (const i in mongoose.models) {
     }
   };
 
-  BaseController.prototype[`${i.toLocaleLowerCase()}And${"getonebysimple"}`] = async (ctx) => {
+  BaseController.prototype[`${_.camelCase(i)}And${"getonebysimple"}`] = async (ctx) => {
     let query = {};
     try {
       const { token } = ctx.request.header;
@@ -146,7 +147,7 @@ for (const i in mongoose.models) {
     }
   };
 
-  BaseController.prototype[`${i.toLocaleLowerCase()}And${"remove"}`] = async (ctx) => {
+  BaseController.prototype[`${_.camelCase(i)}And${"remove"}`] = async (ctx) => {
     let query = {};
     try {
       const { token } = ctx.request.header;
@@ -170,7 +171,7 @@ for (const i in mongoose.models) {
     }
   };
 
-  BaseController.prototype[`${i.toLocaleLowerCase()}And${"getsomebysimple"}`] = async (ctx) => {
+  BaseController.prototype[`${_.camelCase(i)}And${"getsomebysimple"}`] = async (ctx) => {
     let query = {};
     try {
       const { token } = ctx.request.header;

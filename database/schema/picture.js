@@ -1,12 +1,12 @@
 /**
- * 配置信息 必用
+ * 配图信息 必用
  */
 const mongoose = require("mongoose"); // 引入Mongoose
 const { Schema } = mongoose; // 声明Schema
 
 
 /* **/
-const ConfigSchema = Schema({
+const PictureSchema = Schema({
   name: {
     type: String,
     required: [true, "名字必须添加"]
@@ -14,12 +14,10 @@ const ConfigSchema = Schema({
   img: {
     type: String,
   },
-  value: {
+  desc: {
     type: String,
     alias: "myValue"
   }, // 配置内容
-  type: String, // 配置类型
-  unit: String, // 配置单位
   sort: {
     type: Number,
     default: 0
@@ -35,4 +33,4 @@ const ConfigSchema = Schema({
 
 
 // 发布模型
-module.exports = mongoose.model("Config", ConfigSchema);
+module.exports = mongoose.model("Picture", PictureSchema);

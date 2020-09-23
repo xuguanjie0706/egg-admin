@@ -31,9 +31,10 @@ class UploadController extends Controller {
 
   async uploadFile() {
     const { ctx } = this;
-    console.log(ctx.ip);
+    // console.log(ctx.ip);
 
     let query = null;
+    console.log(ctx.request);
     try {
       const fileArr = [];
       for (const file of ctx.request.files) {
