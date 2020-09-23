@@ -19,7 +19,6 @@ const ExchangeCardSchema = Schema({
   }, // 描述
   price: {
     type: Number,
-    required: [true, "价格必须有"]
   },
   _member: {
     type: Schema.Types.ObjectId,
@@ -31,6 +30,10 @@ const ExchangeCardSchema = Schema({
     ref: "Goods",
     required: [true, "兑换商品必须填"]
   }],
+  _usegoods: {
+    type: Schema.Types.ObjectId,
+    ref: "Goods",
+  },
   card: {
     type: String,
     required: [true, "卡号必须填"]
@@ -39,10 +42,17 @@ const ExchangeCardSchema = Schema({
     type: String,
     required: [true, "密码必须填"]
   }, // 描述
+  sendNumber: {
+    type: String,
+  },
+  _area: {
+    type: Schema.Types.ObjectId,
+    ref: "Area",
+  },
   status: {
     type: String,
-    enum: ["0", "1"],
-    default: "1" // 0 已使用 1 未使用
+    enum: ["1", "2", "3"],
+    default: "1" //  1 未使用 2 已兑换 3 已完成
   },
   overtime: {
     type: Number,

@@ -60,7 +60,9 @@ class exchangeCardController extends Controller {
       const page = data.pageNum ? data.pageNum - 1 : 0;
       const count = data.pageSize ? Number(data.pageSize) : 10;
       const searchData = fitlerSearch(data);
-      searchData._member = tokenData.isUser !== "1" ? tokenData._id : undefined;
+      if (tokenData.isUser !== "1") {
+        searchData._member = tokenData._id;
+      }
       const skip = page * count;
 
       const r1 = await Model.find(searchData).limit(count).skip(skip)
@@ -78,6 +80,37 @@ class exchangeCardController extends Controller {
         total: r2
       };
       // ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
+      ctx.body = setData(query, null);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+  /**
+    * @description: 分页带商品
+    * @param {type}
+    * @return:
+  */
+  async exchange() {
+    const { ctx } = this;
+    let query = {};
+    try {
+      const data = ctx.request.body;
+      if (+data.status !== 1) {
+        throw new Error("卡券异常");
+      }
+      const olddata = {
+        _id: data._id
+      };
+      const newdata = {
+      };
+      Object.keys(data).forEach(key => newdata[key] = data[key]);
+      newdata.status = 2;
+      query = await Model.updateOne(olddata, newdata, {
+        new: true,
+        upsert: true,
+        runValidators: true
+      });
       ctx.body = setData(query, null);
     } catch (error) {
       ctx.logger.error(error);

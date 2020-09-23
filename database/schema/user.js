@@ -9,6 +9,7 @@
 
 const mongoose = require("mongoose"); // 引入Mongoose
 const { Schema } = mongoose; // 声明Schema
+const dayjs = require("dayjs");
 
 const crypto = require("crypto");
 
@@ -86,7 +87,10 @@ const UserSchema = Schema({
     type: Boolean,
     default: false
   }, // 是否会员
-  // overtime: Number,
+  overtime: {
+    type: Number,
+    default: dayjs().add(1, "year").valueOf()
+  },
   // unionid: String, // 微信 unionid
   // appOpenid: String, // 微信app openid
   // xiaoOpenid: String, // 微信app openid

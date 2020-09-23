@@ -54,7 +54,12 @@ class UserController extends Controller {
         name: data.name,
         password: data.password,
         isUsed: "1",
-        isUser: "1"
+        $or: [{
+          isUser: "1"
+        }, {
+          isUser: "2"
+        }]
+
       };
       // console.log(searchData);
       const result = await Model.countDocuments(searchData);
