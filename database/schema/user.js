@@ -197,6 +197,14 @@ UserSchema.index({
   unique: true
 });
 
+UserSchema.index({
+  phone: 1
+}, {
+  unique: true,
+  sparse: true
+});
+
+
 // UserSchema.index({
 //   invite: 1
 // }, {

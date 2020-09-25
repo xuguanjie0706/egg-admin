@@ -14,6 +14,9 @@ const ExchangeCardSchema = Schema({
   img: {
     type: String,
   },
+  code: {
+    type: String,
+  },
   value: {
     type: String,
   }, // 描述
@@ -42,8 +45,11 @@ const ExchangeCardSchema = Schema({
     type: String,
     required: [true, "密码必须填"]
   }, // 描述
-  sendNumber: {
-    type: String,
+  sendInfo: {
+    type: Object,
+  },
+  address: {
+    type: Object,
   },
   _area: {
     type: Schema.Types.ObjectId,

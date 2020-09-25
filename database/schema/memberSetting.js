@@ -6,31 +6,22 @@ const { Schema } = mongoose; // 声明Schema
 
 
 /* **/
-const GoodsSchema = Schema({
+const MemberSettingSchema = Schema({
   name: {
     type: String,
-    required: [true, "名字必须添加"]
+    required: [true, "标题必须添加"]
   }, // 配置名称
   img: {
     type: String,
+    // required: [true, "图片必须添加"]
   },
-  imgs: [{
-    type: String
-  }],
+  phone: {
+    type: String,
+  },
   _member: {
     type: Schema.Types.ObjectId,
     ref: "User"
   },
-  value: {
-    type: String,
-  }, // 描述
-  price: {
-    type: Number,
-  },
-  sort: {
-    type: Number,
-    default: 0
-  }, // 排序
   up: {
     type: Number,
     default: 0
@@ -41,5 +32,11 @@ const GoodsSchema = Schema({
 });
 
 
+MemberSettingSchema.index({
+  _member: 1
+}, {
+  unique: true
+});
+
 // 发布模型
-module.exports = mongoose.model("Goods", GoodsSchema);
+module.exports = mongoose.model("MemberSetting", MemberSettingSchema);

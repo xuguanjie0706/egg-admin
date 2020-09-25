@@ -21,12 +21,11 @@ class exchangeCardController extends Controller {
 
     try {
       const data = ctx.request.body;
-      const { count = 1 } = data;
+      const { count = 1, code = "" } = data;
       const arr = Array(Number(count)).fill({ ...data });
-
       const result = arr.map(item => {
         const _data = { ...item };
-        _data.card = Math.floor((+dayjs().format("YYYYMMDDHHmmss")) / 2 + Math.floor(Math.random() * 1000));
+        _data.card = code + Math.floor((+dayjs().format("YYYYMMDDHHmmss")) / 2 + Math.floor(Math.random() * 1000));
         _data.password = getPasswords(8);
         _data.overtime = dayjs().add(1, "year").valueOf();
         return _data;
@@ -73,6 +72,9 @@ class exchangeCardController extends Controller {
         .populate({
           path: "_goods",
         })
+        .populate({
+          path: "_usegoods",
+        })
         .exec();
       const r2 = await Model.countDocuments(searchData).exec();
       query = {
@@ -112,6 +114,32 @@ class exchangeCardController extends Controller {
         runValidators: true
       });
       ctx.body = setData(query, null);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+  async getone() {
+    let query = {};
+    const { ctx } = this;
+    try {
+      const { token } = ctx.request.header;
+      // const tokenData = await checkToken(token);
+      // if (!tokenData) {
+      //   throw new Error("token失效或不存在");
+      // }
+      const data = ctx.request.body;
+      console.log(data);
+      const searchData = fitlerSearch(data);
+      query = await Model.findOne(searchData)
+        .sort({
+          createdAt: -1
+        }).populate({
+          path: "_goods"
+        }).exec();
+
+      ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
     } catch (error) {
       ctx.logger.error(error);
       ctx.body = doErr(error);

@@ -3,8 +3,11 @@
 const { Controller } = require("egg");
 const Model = require("../../database/schema/user");
 const Verification = require("../../database/schema/verification");
+const dayjs = require("dayjs");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
+const { getCodeTX } = require("../../untils/VerficationSDK/index");
+
 class UserController extends Controller {
   /**
   * @description:  管理员登录 isUser必须为1
@@ -236,6 +239,7 @@ class UserController extends Controller {
         .sort({
           createdAt: -1
         }).exec();
+
       query = setData(query, "ok", ["updatedAt", "lastLoginAt"]);
       ctx.body = query;
     } catch (error) {
@@ -250,7 +254,6 @@ class UserController extends Controller {
      * @return:
   */
   async addbyself() {
-
     const { ctx } = this;
     let query = {};
     try {
@@ -269,9 +272,72 @@ class UserController extends Controller {
       }
       const newdata = new Model();
       Object.keys(data).forEach(key => newdata[key] = data[key]);
-      newdata.isUsed = "0";
+      // newdata.isUsed = "0";
       newdata.isUser = "2";
+      newdata.status = 1;
+      newdata.overtime = dayjs().add(7, "day").valueOf();
       query = await newdata.save(newdata);
+      ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+  /**
+     * @description:  商户新增  默认不可以用
+     * @param {type}
+     * @return:
+  */
+
+  async getVerfication() {
+    const { ctx } = this;
+    const query = {};
+    try {
+      const data = ctx.request.body;
+      const { phone } = data;
+      if (!phone) {
+        throw new Error("请填写手机号");
+      }
+      const r = await getCodeTX(phone);
+      const verification = new Verification();
+      verification.num = r;
+      verification.phone = phone;
+      verification.overtime = dayjs().add(5, "minute").toDate();
+      await verification.save();
+      ctx.body = setData(query, "ok");
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+
+  }
+
+
+  /**
+   * @description:  获取个人信息
+   * @param {type}
+   * @return:
+  */
+
+  async getone() {
+    let query = {};
+    const { ctx } = this;
+    try {
+      // const { token } = ctx.request.header;
+      // const tokenData = await checkToken(token);
+      // if (!tokenData) {
+      //   throw new Error("token失效或不存在");
+      // }
+      const data = ctx.request.body;
+      const searchData = fitlerSearch(data);
+      query = await Model.findOne(searchData, "overtime status")
+        .sort({
+          createdAt: -1
+        }).populate({
+          path: "_goods"
+        }).exec();
+
       ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
     } catch (error) {
       ctx.logger.error(error);
