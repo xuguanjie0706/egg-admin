@@ -6,7 +6,8 @@ const Verification = require("../../database/schema/verification");
 const Config = require("../../database/schema/config");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
-const { getPCPay, getOpenid, sendTemplate } = require("../../untils/WeixinSDK");
+const { getPCPay, getOpenid, sendTemplate, renewMember } = require("../../untils/WeixinSDK");
+const dayjs = require("dayjs");
 const xml2js = require("xml2js").parseString;
 // wx45d398e7c87a97f6
 // f4be67e5288b16599351f29497cbda50
@@ -63,6 +64,30 @@ class WeiXinController extends Controller {
       ctx.body = doErr(error);
     }
   }
+  /**
+   * @description:  发送模板
+   * @param {type}
+   * @return:{ errcode: 0, errmsg: 'ok', msgid: 1536859103703187500 }
+   * @example   {
+      appid: 'wx45d398e7c87a97f6',
+      attach: '5f6480b6a18e5a1a7e86721f',
+      bank_type: 'CMB_CREDIT',
+      cash_fee: '1',
+      fee_type: 'CNY',
+      is_subscribe: 'Y',
+      mch_id: '1580632751',
+      nonce_str: '98418',
+      openid: 'oxoI3wNABfuwiqM5k-ZYmkuFf5lE',
+      out_trade_no: '20200927224561',
+      result_code: 'SUCCESS',
+      return_code: 'SUCCESS',
+      sign: 'B1EE67A19DFF8232CF197978D97E8F6A',
+      time_end: '20200927224353',
+      total_fee: '1',
+      trade_type: 'NATIVE',
+      transaction_id: '4200000768202009275015684668'
+    }
+   */
 
   async notifyUrlCall() {
     const { ctx } = this;
@@ -93,11 +118,47 @@ class WeiXinController extends Controller {
           }
         });
       });
-      console.log(r);
-      console.log(ctx, 33);
-      console.log(ctx.request, 12);
 
-      const data = ctx.request.body;
+      const memberData = await renewMember({ _member: r.attach });
+      if (memberData.openid) {
+        sendTemplate({
+          templateId: "bqlamfGVW2uAet2mqv7m7PGNdBeucwpzkSZBUGiNCxA",
+          openid: memberData.openid,
+          data: {
+            "first": {
+              "value": "续费成功",
+              "color": "#173177"
+            },
+            "keyword1": {
+              "value": memberData.name,
+              "color": "#173177"
+            },
+            "keyword2": {
+              "value": "1年",
+              "color": "#173177"
+            },
+            "keyword3": {
+              "value": (r.total_fee / 100).toFixed(2) + "元",
+              "color": "#173177"
+            },
+            "keyword4": {
+              "value": dayjs(memberData.overtime),
+              "color": "#173177"
+            },
+            "remark": {
+              "value": "欢迎您成为会员",
+              "color": "#173177"
+            }
+          }
+        });
+      }
+
+      console.log(r);
+      // console.log(ctx, 33);
+      // console.log(ctx.request, 12);
+      ctx.body = `<xml><return_code><![CDATA[SUCCESS]]></return_code>
+      <return_msg><![CDATA[OK]]></return_msg></xml>`;
+      // const data = ctx.request.body;
       // console.log(data);
     } catch (error) {
       ctx.logger.error(error);

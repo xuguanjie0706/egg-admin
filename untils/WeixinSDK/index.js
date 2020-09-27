@@ -2,19 +2,28 @@ const superagent = require("superagent");
 const md5 = require("md5");
 const xml2js = require("xml2js").parseString;
 const dayjs = require("dayjs");
+const Member = require("../../database/schema/user");
 const appid = "wx45d398e7c87a97f6";
 const secret = "f4be67e5288b16599351f29497cbda50";
-const access_token = "37_M22M9dVc3ra-Xb1L7v85p1B-23qhCIKrWM640LArd7CUvVdhgAdknSMNzZ4JdcU0hIUdGUN5nGFkDjgNTEfYioifAOFzanzzGaoTgtN8ZjqorXeK2SXlYWlFJY3wW8yV-mNKqOiePCu4vPiaVHZiAHAGSK";
+let accessToken = "37_M22M9dVc3ra-Xb1L7v85p1B-23qhCIKrWM640LArd7CUvVdhgAdknSMNzZ4JdcU0hIUdGUN5nGFkDjgNTEfYioifAOFzanzzGaoTgtN8ZjqorXeK2SXlYWlFJY3wW8yV-mNKqOiePCu4vPiaVHZiAHAGSK";
 
 const baseUrl = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${secret}`;
-// superagent.get(baseUrl)
-//   .end(function (err, res) {
-//     if (err) {
-//       return console.error(err);
-//     }
-//     // access_tokens = res.body.access_token;
-//     console.log(res.body);
-//   });
+
+function getAccessToken() {
+  superagent.get(baseUrl)
+    .end(function (err, res) {
+      if (err) {
+        return console.error(err);
+      }
+      accessToken = res.body.access_token;
+      console.log(res.body);
+    });
+}
+getAccessToken();
+setInterval(() => {
+  getAccessToken();
+}, 2 * 60 * 60 * 1000);
+
 const key = "7ba9aa8144e52d5412394fedfef538ce";
 /**
  * @description:  发送模板
@@ -58,11 +67,8 @@ async function sendTemplate({ templateId, openid, data }) {
     data: data
   };
 
-  const base1 = `https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${access_token}`;
-  // let base1 = `https://api.weixin.qq.com/cgi-bin/template/api_set_industry?access_token=${access_tokens}`
-
+  const base1 = `https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${accessToken}`;
   const query = await superagent.post(base1).send(body);
-  console.log(query);
   return query;
 }
 
@@ -140,8 +146,29 @@ const getOpenid = async (code) => {
   }
 };
 
+/**
+ * @description:  会员续费
+ * @param {type}
+ * @return:{ errcode: 0, errmsg: 'ok', msgid: 1536859103703187500 }
+ * @example
+ */
+
+async function renewMember({ _member }) {
+  const r = await Member.findOneAndUpdate({
+    _id: _member
+  }, {
+    $inc: {
+      overtime: 365 * 60 * 60 * 1000 * 24
+    },
+    status: true
+  }).exec();
+  return r;
+}
+
 
 module.exports = {
   getPCPay,
-  getOpenid
+  getOpenid,
+  renewMember,
+  sendTemplate,
 };
