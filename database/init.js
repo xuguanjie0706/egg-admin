@@ -30,7 +30,7 @@ exports.initSchemas = () => {
 
 exports.connect = (mode = "local") => {
 
-  const db = mode === "local" ? "mongodb://xu:123abc@116.85.36.207:20001/hello?authSource=admin" : "mongodb://xu:123abc@116.85.36.207:20001/base?authSource=admin";
+  const db = mode === "local" ? "mongodb://xu:123abc@116.85.36.207:20001/hello?authSource=admin" : "mongodb://xu:123abc@116.85.36.207:20001/hello?authSource=admin";
   // 连接数据库
   mongoose.connect(db);
 

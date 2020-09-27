@@ -142,7 +142,7 @@ class WeiXinController extends Controller {
               "color": "#173177"
             },
             "keyword4": {
-              "value": dayjs(memberData.overtime),
+              "value": dayjs(memberData.overtime).format("YYYY-MM-DD"),
               "color": "#173177"
             },
             "remark": {

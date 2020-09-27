@@ -152,6 +152,21 @@ const getOpenid = async (code) => {
  * @return:{ errcode: 0, errmsg: 'ok', msgid: 1536859103703187500 }
  * @example
  */
+// Member.findOneAndUpdate({
+//   _id: "5f6ae297dc627b3fd52ddf64"
+// }, {
+//   $inc: {
+//     overtime: 365 * 60 * 60 * 1000 * 24
+//   },
+//   status: true
+// }, {
+//   new: true,
+//   upsert: true,
+//   runValidators: true
+// }).then(r => {
+//   console.log(r);
+//   console.log(dayjs(r.overtime).format("YYYY-MM-DD HH:mm:ss"));
+// });
 
 async function renewMember({ _member }) {
   const r = await Member.findOneAndUpdate({
@@ -161,6 +176,10 @@ async function renewMember({ _member }) {
       overtime: 365 * 60 * 60 * 1000 * 24
     },
     status: true
+  }, {
+    new: true,
+    upsert: true,
+    runValidators: true
   }).exec();
   return r;
 }
