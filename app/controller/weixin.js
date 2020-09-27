@@ -14,6 +14,7 @@ class WeiXinController extends Controller {
     const query = {};
     try {
       const data = ctx.request.body;
+      console.log(data);
       const { code, MemberId } = data;
       // console.log(MemberId, code);
       const result = await getOpenid(code);

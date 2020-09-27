@@ -23,10 +23,11 @@ const getOpenid = (code) => {
 
   const base = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${code}&grant_type=authorization_code`;
   return new Promise((resolve, reject) => superagent(base).then(r => {
-    // console.log(r.body);
+    console.log(r.body);
     // if (r.body.errcode) {
     //   reject(r.body.errmsg);
     // }
+
     resolve(r.body);
   }));
 };
