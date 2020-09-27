@@ -45,8 +45,8 @@ class WeiXinController extends Controller {
       console.log(data);
       const r = await getPCPay();
       console.log(r);
-      if (r.return_code !== "SUCCESS") {
-        throw new Error("调用支付失败");
+      if (r.result_code !== "SUCCESS") {
+        throw new Error(r.err_code_des);
       }
       // if (errcode) {
       //   throw new Error("系统错误码为" + errcode);
@@ -64,11 +64,37 @@ class WeiXinController extends Controller {
     const { ctx } = this;
     const query = {};
     try {
+      const buffer = [];
+      ctx.req.on("data", r => {
+        buffer.push(r);
+      });
+      const msgXmlResult = await new Promise((resolve, reject) => {
+        ctx.req.on("end", r => {
+          const msgXml = Buffer.concat(buffer).toString("utf-8");
+          // console.log(msgXml)
+          resolve(msgXml);
+
+        });
+      });
+      const r = await new Promise((resolve, reject) => {
+        xml2js(msgXmlResult, {
+          explicitArray: false
+        }, function (err, result) {
+          if (!err) {
+            // 打印解析结果
+            resolve(result.xml);
+          } else {
+            // 打印错误信息
+            console.log(err);
+          }
+        });
+      });
+      console.log(r);
       console.log(ctx, 33);
       console.log(ctx.request, 12);
 
       const data = ctx.request.body;
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       ctx.logger.error(error);
       ctx.body = doErr(error);
