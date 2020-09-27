@@ -64,6 +64,9 @@ class WeiXinController extends Controller {
     const { ctx } = this;
     const query = {};
     try {
+      console.log(ctx, 33);
+      console.log(ctx.request, 12);
+
       const data = ctx.request.body;
       console.log(data);
     } catch (error) {
