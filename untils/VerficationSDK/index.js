@@ -51,7 +51,7 @@ function getCodeAL(phone) {
   return new Promise((resolve, reject) => {
     smsClient.sendSMS({
       PhoneNumbers: Number(data),
-      SignName: "云隐科技",
+      SignName: "乐隐农业",
       TemplateCode: "SMS_197120312",
       TemplateParam: `{"code":${a}}`
     }).then(res => {
