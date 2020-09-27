@@ -19,19 +19,21 @@ const getPCPay = async () => {
 };
 
 // getOpenid("051oDU0w3PoH2V2gSv0w3qPZiS2oDU0B");
-const getOpenid = (code) => {
+const getOpenid = async (code) => {
   const appid = "wx45d398e7c87a97f6";
   const secret = "f4be67e5288b16599351f29497cbda50";
 
   const base = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${code}&grant_type=authorization_code`;
-  return new Promise((resolve, reject) => superagent(base).then(r => {
-    console.log(r);
-    // if (r.body.errcode) {
-    //   reject(r.body.errmsg);
+  try {
+    const { text } = await superagent(base);
+    // const { openid, errcode } = JSON.parse(text);
+    // if (errcode) {
+    //   throw new Error("系统错误码为" + errcode);
     // }
-
-    resolve(r.body);
-  }));
+    return JSON.parse(text);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 
