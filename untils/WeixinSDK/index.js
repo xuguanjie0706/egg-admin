@@ -17,13 +17,15 @@ const getPCPay = async () => {
     console.log(r);
   });
 };
+
+// getOpenid("051oDU0w3PoH2V2gSv0w3qPZiS2oDU0B");
 const getOpenid = (code) => {
   const appid = "wx45d398e7c87a97f6";
   const secret = "f4be67e5288b16599351f29497cbda50";
 
   const base = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${code}&grant_type=authorization_code`;
   return new Promise((resolve, reject) => superagent(base).then(r => {
-    console.log(r.body);
+    console.log(r);
     // if (r.body.errcode) {
     //   reject(r.body.errmsg);
     // }
