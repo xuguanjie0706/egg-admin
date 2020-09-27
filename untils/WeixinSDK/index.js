@@ -1,6 +1,7 @@
 const superagent = require("superagent");
 const md5 = require("md5");
 const xml2js = require("xml2js").parseString;
+const dayjs = require("dayjs");
 const appid = "wx45d398e7c87a97f6";
 const secret = "f4be67e5288b16599351f29497cbda50";
 const access_token = "37_M22M9dVc3ra-Xb1L7v85p1B-23qhCIKrWM640LArd7CUvVdhgAdknSMNzZ4JdcU0hIUdGUN5nGFkDjgNTEfYioifAOFzanzzGaoTgtN8ZjqorXeK2SXlYWlFJY3wW8yV-mNKqOiePCu4vPiaVHZiAHAGSK";
@@ -66,20 +67,20 @@ async function sendTemplate({ templateId, openid, data }) {
 }
 
 /* pc支付的时候调用 */
-const getPCPay = async (data = {}) => {
+const getPCPay = async ({ _card, _member, price, desc }) => {
   const base = "https://api.mch.weixin.qq.com/pay/unifiedorder";
   const body = {
     "appid": "wx45d398e7c87a97f6",
     "mch_id": "1580632751",
     "nonce_str": Math.floor(Math.random() * 100000),
-    "out_trade_no": data.outTradeNO || "20150806125346",
+    "out_trade_no": Math.floor((+dayjs().format("YYYYMMDDHHmmss")) + Math.floor(Math.random() * 1000)),
     "notify_url": "http://pick.yystart.com/weixin/notifyUrlCall",
-    "body": "这个是已个",
-    "total_fee": 1,
-    "product_id": "12235413214070356458058",
+    "body": desc,
+    "total_fee": price,
+    "product_id": _card,
     "spbill_create_ip": "127.0.0.1",
     "trade_type": "NATIVE",
-    "attach": 123
+    "attach": _member
   };
 
   const sortArr = Object.keys(body).sort();

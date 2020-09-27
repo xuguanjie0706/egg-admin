@@ -6,6 +6,7 @@ const Verification = require("../../database/schema/verification");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
 const { getPCPay, getOpenid, sendTemplate } = require("../../untils/WeixinSDK");
+const xml2js = require("xml2js").parseString;
 // wx45d398e7c87a97f6
 // f4be67e5288b16599351f29497cbda50
 
@@ -43,8 +44,9 @@ class WeiXinController extends Controller {
       //   throw new Error("参数不对");
       // }
       console.log(data);
-      const r = await getPCPay();
-      console.log(r);
+      const r = await getPCPay({
+
+      });
       if (r.result_code !== "SUCCESS") {
         throw new Error(r.err_code_des);
       }
