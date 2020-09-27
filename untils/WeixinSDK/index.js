@@ -1,22 +1,27 @@
 const superagent = require("superagent");
 
-const base = "https://api.mch.weixin.qq.com/v3/pay/transactions/native";
-// const base = "http://127.0.0.1:7001/user/getone";
-const getPCPay = async () => {
+
+/* pc支付的时候调用 */
+const getPCPay = async (data = {}) => {
+  const base = "https://api.mch.weixin.qq.com/v3/pay/transactions/native";
   const body = {
     appid: "wx45d398e7c87a97f6",
     mchid: "1580632751",
     description: "123",
-    "out_trade_no": "12313212",
-    "notify_url": "http://baidu.com",
+    "out_trade_no": data.outTradeNO || "12313212",
+    "notify_url": "http://pick.yystart.com/weixin/notifyUrlCall",
     amount: {
       total: 1,
     }
   };
-  superagent.post(base).send(body).then(r => {
-    console.log(r);
-  });
+  try {
+    const query = await superagent.post(base).send(body);
+    return query;
+  } catch (error) {
+    console.log(error);
+  }
 };
+// getPCPay();
 
 // getOpenid("051oDU0w3PoH2V2gSv0w3qPZiS2oDU0B");
 const getOpenid = async (code) => {

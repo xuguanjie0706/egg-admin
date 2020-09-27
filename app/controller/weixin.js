@@ -14,19 +14,54 @@ class WeiXinController extends Controller {
     let query = {};
     try {
       const data = ctx.request.body;
-      // console.log(data);
       const { code, MemberId } = data;
       if (!code || !MemberId) {
         throw new Error("参数不对");
       }
-      // console.log(MemberId, code);
       const { errcode, openid } = await getOpenid(code);
       if (errcode) {
         throw new Error("系统错误码为" + errcode);
       }
       query = await Model.updateOne({ _id: MemberId }, { openid });
-      console.log(query);
+      // console.log(query);
       ctx.body = setData(query, "ok");
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+
+  async getPayWeb() {
+    const { ctx } = this;
+    const query = {};
+    try {
+      const data = ctx.request.body;
+      // const { code, MemberId } = data;
+      // if (!code || !MemberId) {
+      //   throw new Error("参数不对");
+      // }
+      console.log(data);
+      const r = await getPCPay();
+      console.log(r);
+      // if (errcode) {
+      //   throw new Error("系统错误码为" + errcode);
+      // }
+      // query = await Model.updateOne({ _id: MemberId }, { openid });
+      // console.log(query);
+      ctx.body = setData(1, "ok");
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+  async notifyUrlCall() {
+    const { ctx } = this;
+    const query = {};
+    try {
+      const data = ctx.request.body;
+      console.log(data);
     } catch (error) {
       ctx.logger.error(error);
       ctx.body = doErr(error);
