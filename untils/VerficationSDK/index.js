@@ -34,13 +34,14 @@ function getCodeTX(phone) {
 
 const SMSClient = require("@alicloud/sms-sdk"); // 阿里云
 
-const accessKeyId = "LTAIQV31LcbglMIM";
-const secretAccessKey = "oc8hgUEE7wlgJ86caASI6cD3is85V4";
+const accessKeyId = "LTAI4G5U2NVgaVCCV6om7XKj";
+const secretAccessKey = "6oFbPMwehwv97hkPqfuo6TJZocl9bO";
 const smsClient = new SMSClient({
   accessKeyId,
   secretAccessKey
 });
 
+// getCodeAL(18906764747);
 
 function getCodeAL(phone) {
   const data = phone;
@@ -50,8 +51,8 @@ function getCodeAL(phone) {
   return new Promise((resolve, reject) => {
     smsClient.sendSMS({
       PhoneNumbers: Number(data),
-      SignName: "学邦教育",
-      TemplateCode: "SMS_172510018",
+      SignName: "云隐科技",
+      TemplateCode: "SMS_197120312",
       TemplateParam: `{"code":${a}}`
     }).then(res => {
       console.log("request data: ", res);

@@ -3,8 +3,20 @@
 // const Model = require("../../database/schema/role");
 const User = require("../../database/schema/user");
 const Role = require("../../database/schema/role");
+const { getPCPay } = require("../../untils/WeixinSDK");
 const { Controller } = require("egg");
 
+// getPCPay();
+// async function a() {
+//   const users = await User.find({
+//     overtime: {
+//       $lt: new Date().valueOf()
+//     },
+//     isUser: 2
+//   }).exec();
+//   console.log(users);
+// }
+// a();
 
 class ShowController extends Controller {
 
