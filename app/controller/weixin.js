@@ -16,13 +16,17 @@ class WeiXinController extends Controller {
       const data = ctx.request.body;
       console.log(data);
       const { code, MemberId } = data;
-      // console.log(MemberId, code);
-      const result = await getOpenid(code);
-      if (result.errcode) {
-        throw new Error("系统错误码为" + result.errcode);
+      if (!code || !MemberId) {
+        throw new Error("参数不对");
       }
-      console.log(result);
-      ctx.body = setData(result, "ok");
+      // console.log(MemberId, code);
+      const { errcode, openid } = await getOpenid(code);
+      if (errcode) {
+        throw new Error("系统错误码为" + errcode);
+      }
+      const query = await Model.updateOne({ _id: MemberId }, { openid });
+      console.log(query);
+      ctx.body = setData(query, "ok");
     } catch (error) {
       ctx.logger.error(error);
       ctx.body = doErr(error);

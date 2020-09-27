@@ -91,6 +91,7 @@ const UserSchema = Schema({
     type: Number,
     default: dayjs().add(1, "year").valueOf()
   },
+  openid: String,// 微信服务号 openid
   // unionid: String, // 微信 unionid
   // appOpenid: String, // 微信app openid
   // xiaoOpenid: String, // 微信app openid
@@ -199,6 +200,13 @@ UserSchema.index({
 
 UserSchema.index({
   phone: 1
+}, {
+  unique: true,
+  sparse: true
+});
+
+UserSchema.index({
+  openid: 1
 }, {
   unique: true,
   sparse: true
