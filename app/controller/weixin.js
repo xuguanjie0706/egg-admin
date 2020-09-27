@@ -5,9 +5,10 @@ const Model = require("../../database/schema/user");
 const Verification = require("../../database/schema/verification");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
-const { getPCPay, getOpenid } = require("../../untils/WeixinSDK");
+const { getPCPay, getOpenid, sendTemplate } = require("../../untils/WeixinSDK");
 // wx45d398e7c87a97f6
 // f4be67e5288b16599351f29497cbda50
+
 class WeiXinController extends Controller {
   async getOpenidWeb() {
     const { ctx } = this;
@@ -44,12 +45,15 @@ class WeiXinController extends Controller {
       console.log(data);
       const r = await getPCPay();
       console.log(r);
+      if (r.return_code !== "SUCCESS") {
+        throw new Error("调用支付失败");
+      }
       // if (errcode) {
       //   throw new Error("系统错误码为" + errcode);
       // }
       // query = await Model.updateOne({ _id: MemberId }, { openid });
       // console.log(query);
-      ctx.body = setData(1, "ok");
+      ctx.body = setData(r.code_url, "ok");
     } catch (error) {
       ctx.logger.error(error);
       ctx.body = doErr(error);
@@ -67,6 +71,20 @@ class WeiXinController extends Controller {
       ctx.body = doErr(error);
     }
   }
+
+  async payCall() {
+    const { ctx } = this;
+    const query = {};
+    try {
+      const data = ctx.request.body;
+      console.log(data, 123121);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+
 }
 
 module.exports = WeiXinController;

@@ -16,9 +16,11 @@
     "glob": "^7.1.6",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
+    "md5": "^2.3.0",
     "mongoose": "^5.8.1",
     "qcloudsms_js": "^0.1.1",
-    "superagent": "^5.1.2"
+    "superagent": "^5.1.2",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "autod": "^3.0.1",
