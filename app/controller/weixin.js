@@ -3,6 +3,7 @@
 const { Controller } = require("egg");
 const Model = require("../../database/schema/user");
 const Verification = require("../../database/schema/verification");
+const Config = require("../../database/schema/config");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
 const { getPCPay, getOpenid, sendTemplate } = require("../../untils/WeixinSDK");
@@ -39,16 +40,17 @@ class WeiXinController extends Controller {
     const query = {};
     try {
       const data = ctx.request.body;
-      // const { code, MemberId } = data;
-      // if (!code || !MemberId) {
-      //   throw new Error("参数不对");
-      // }
-      console.log(data);
-      const r = await getPCPay({
+      const { _member } = data;
+      const { value: money } = await Config.findOne({ name: "年费" });
 
+      const r = await getPCPay({
+        _card: "1232326176217",
+        _member,
+        price: money || 1,
+        desc: "会员充值"
       });
       if (r.result_code !== "SUCCESS") {
-        throw new Error(r.err_code_des);
+        throw new Error(r.return_msg);
       }
       // if (errcode) {
       //   throw new Error("系统错误码为" + errcode);
