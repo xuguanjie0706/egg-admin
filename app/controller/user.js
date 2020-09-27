@@ -6,7 +6,7 @@ const Verification = require("../../database/schema/verification");
 const dayjs = require("dayjs");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
-const { getCodeTX } = require("../../untils/VerficationSDK/index");
+const { getCodeTX, getCodeAL } = require("../../untils/VerficationSDK/index");
 
 class UserController extends Controller {
   /**
@@ -261,9 +261,9 @@ class UserController extends Controller {
       const result = await Verification.findOne({
         phone: data.phone,
         num: data.verification,
-        // overtime: {
-        // $gt: new Date()
-        // }
+        overtime: {
+          $gt: new Date()
+        }
       }).sort({
         createdAt: -1
       }).exec();
@@ -299,7 +299,7 @@ class UserController extends Controller {
       if (!phone) {
         throw new Error("请填写手机号");
       }
-      const r = await getCodeTX(phone);
+      const r = await getCodeAL(phone);
       const verification = new Verification();
       verification.num = r;
       verification.phone = phone;

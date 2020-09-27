@@ -205,12 +205,12 @@ UserSchema.index({
   sparse: true
 });
 
-UserSchema.index({
-  openid: 1
-}, {
-  unique: true,
-  sparse: true
-});
+// UserSchema.index({
+//   openid: 1
+// }, {
+//   unique: true,
+//   sparse: true
+// });
 
 
 // UserSchema.index({

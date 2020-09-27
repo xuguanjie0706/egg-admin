@@ -11,10 +11,10 @@ const { getPCPay, getOpenid } = require("../../untils/WeixinSDK");
 class WeiXinController extends Controller {
   async getOpenidWeb() {
     const { ctx } = this;
-    const query = {};
+    let query = {};
     try {
       const data = ctx.request.body;
-      console.log(data);
+      // console.log(data);
       const { code, MemberId } = data;
       if (!code || !MemberId) {
         throw new Error("参数不对");
@@ -24,7 +24,7 @@ class WeiXinController extends Controller {
       if (errcode) {
         throw new Error("系统错误码为" + errcode);
       }
-      const query = await Model.updateOne({ _id: MemberId }, { openid });
+      query = await Model.updateOne({ _id: MemberId }, { openid });
       console.log(query);
       ctx.body = setData(query, "ok");
     } catch (error) {
