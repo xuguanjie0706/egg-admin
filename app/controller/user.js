@@ -213,16 +213,15 @@ class UserController extends Controller {
   async check() {
     const { ctx } = this;
     let query = {};
-    const { token } = ctx.request.header;
-    const tokenData = await checkToken(token);
-
-    if (!tokenData) {
-      throw new Error("token失效或不存在");
-    }
-    const searchData = {
-      _id: tokenData._id
-    };
     try {
+      const { token } = ctx.request.header;
+      const tokenData = await checkToken(token);
+      if (!tokenData) {
+        throw new Error("token失效或不存在");
+      }
+      const searchData = {
+        _id: tokenData._id
+      };
       query = await Model.findOne(searchData)
         .populate({
           path: "_role",
