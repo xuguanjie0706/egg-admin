@@ -94,9 +94,10 @@ class UploadController extends Controller {
     let query = null;
     try {
       const stream = await ctx.getFileStream();
+      const _stream = stream.filename.split(".");
       const target = `${fileUrl}/${dayjs().valueOf()}${Number.parseInt(
         Math.random() * 10000
-      )}.${stream.filename.split(".")[1]}`;
+      )}.${_stream[_stream.length - 1]}`;
       const UPLOAD_DIR = path.resolve(__dirname, "..", target); // 大文件存储目录
       const result = await new Promise((resolve, reject) => {
         // 创建文件写入流

@@ -249,7 +249,7 @@ class UserController extends Controller {
   }
 
   /**
-     * @description:  商户新增  默认不可以用
+     * @description:  商户注册
      * @param {type}
      * @return:
   */
@@ -275,6 +275,7 @@ class UserController extends Controller {
       // newdata.isUsed = "0";
       newdata.isUser = "2";
       newdata.status = 1;
+      newdata._role = ["5f6479171cc2cf1a44ffdeaa"];
       newdata.overtime = dayjs().add(7, "day").valueOf();
       query = await newdata.save(newdata);
       ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
@@ -285,7 +286,52 @@ class UserController extends Controller {
   }
 
   /**
-     * @description:  商户新增  默认不可以用
+       * @description:  修改密码
+       * @param {type}
+       * @return:
+    */
+
+  async forget() {
+    const { ctx } = this;
+    let query = {};
+    try {
+      const data = ctx.request.body;
+      const result = await Verification.findOne({
+        phone: data.phone,
+        num: data.verification,
+        overtime: {
+          $gt: new Date()
+        }
+      }).sort({
+        createdAt: -1
+      }).exec();
+      if (!result) {
+        throw new Error("验证码不对或已过期");
+      }
+      const olddata = {
+        name: data.name,
+        phone: data.phone
+      };
+      const newdata = {
+        password: data.password
+      };
+
+      query = await Model.updateOne(olddata, newdata, {
+        runValidators: true
+      });
+      // console.log(query);
+      if (!query.nModified) {
+        throw new Error("修改失败,请检查账号");
+      }
+      ctx.body = setData(query, "ok");
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+  /**
+     * @description:  验证码获取
      * @param {type}
      * @return:
   */
@@ -334,8 +380,6 @@ class UserController extends Controller {
       query = await Model.findOne(searchData, "overtime status")
         .sort({
           createdAt: -1
-        }).populate({
-          path: "_goods"
         }).exec();
 
       ctx.body = setData(query, null, ["createdAt", "updatedAt"]);

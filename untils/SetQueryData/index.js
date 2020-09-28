@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-14 13:32:34
- * @lastTime: 2020-09-18 15:46:56
+ * @lastTime: 2020-09-28 10:23:00
  * @LastAuthor: xgj
  * @Description: In User Settings Edit
  * @FilePath: /egg/untils/SetQueryData/index.js
@@ -19,10 +19,10 @@ const dayjs = require("dayjs");
 
 function doErr(err) {
   let a;
-  if (err.code === "11000") {
+  if (err.code === 11000) {
     a = {
       code: 3,
-      message: "字段已存在",
+      message: "数据有重复",
       data: err
     };
   } else {
@@ -115,7 +115,8 @@ const filterData = {
   name: 1,
   createdAt: 2,
   ids: 2,
-  userid: 3
+  userid: 3,
+  card: 1
 };
 
 /**

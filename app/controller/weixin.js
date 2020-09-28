@@ -13,6 +13,12 @@ const xml2js = require("xml2js").parseString;
 // f4be67e5288b16599351f29497cbda50
 
 class WeiXinController extends Controller {
+  /**
+  * @description:  绑定微信openId
+  * @param {type}
+  * @return:{ errcode: 0, errmsg: 'ok', msgid: 1536859103703187500 }
+  * @example
+  */
   async getOpenidWeb() {
     const { ctx } = this;
     let query = {};
@@ -119,7 +125,7 @@ class WeiXinController extends Controller {
         });
       });
 
-      const memberData = await renewMember({ _member: r.attach });
+      const memberData = await renewMember({ _member: r.attach, name: r.out_trade_no });
       if (memberData.openid) {
         sendTemplate({
           templateId: "bqlamfGVW2uAet2mqv7m7PGNdBeucwpzkSZBUGiNCxA",

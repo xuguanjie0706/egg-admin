@@ -2,8 +2,10 @@
 
 const { Controller } = require("egg");
 const Model = require("../../database/schema/exchangeCard");
+const User = require("../../database/schema/user");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
+const { sendTemplate } = require("../../untils/WeixinSDK/index");
 const dayjs = require("dayjs");
 const { getPasswords } = require("../../untils");
 
@@ -89,7 +91,7 @@ class exchangeCardController extends Controller {
     }
   }
   /**
-    * @description: 分页带商品
+    * @description: 兑换商品
     * @param {type}
     * @return:
   */
@@ -108,18 +110,61 @@ class exchangeCardController extends Controller {
       };
       Object.keys(data).forEach(key => newdata[key] = data[key]);
       newdata.status = 2;
-      query = await Model.updateOne(olddata, newdata, {
+      query = await Model.findOneAndUpdate(olddata, newdata, {
         new: true,
         upsert: true,
         runValidators: true
+      }).populate({
+        path: "_usegoods"
       });
+      const memberData = await User.findOne({ _id: query._member }, "openid").exec();
+      if (memberData.openid) {
+        sendTemplate({
+          templateId: "Nmb_VQNuZMwI3WN2-HnFoFnqQbodskS9vAlGeNI49s8",
+          openid: memberData.openid,
+          data: {
+            "first": {
+              "value": "兑换卡兑换成功提醒",
+              "color": "#173177"
+            },
+            "keyword1": {
+              "value": query.name,
+              "color": "#173177"
+            },
+            "keyword2": {
+              "value": query.card,
+              "color": "#173177"
+            },
+            "keyword3": {
+              "value": query._usegoods.name,
+              "color": "#173177"
+            },
+            "keyword4": {
+              "value": dayjs(query.overtime).format("YYYY-MM-DD"),
+              "color": "#173177"
+            },
+            "remark": {
+              "value": `收件人:${query.address.people}
+电话:${query.address.mobile}
+地址:${Array.from(new Set(query.address.area)).join("")}${query.address.mainArea}`,
+              "color": "#173177"
+            }
+          }
+        });
+      }
+
+
       ctx.body = setData(query, null);
     } catch (error) {
       ctx.logger.error(error);
       ctx.body = doErr(error);
     }
   }
-
+  /**
+      * @description: 查找兑换商品
+      * @param {type}
+      * @return:
+    */
   async getone() {
     let query = {};
     const { ctx } = this;
@@ -130,14 +175,18 @@ class exchangeCardController extends Controller {
       //   throw new Error("token失效或不存在");
       // }
       const data = ctx.request.body;
-      console.log(data);
+      // console.log(data);
       const searchData = fitlerSearch(data);
+
       query = await Model.findOne(searchData)
         .sort({
           createdAt: -1
         }).populate({
           path: "_goods"
         }).exec();
+      if (query.status === 1 && query.overtime <= dayjs().valueOf()) {
+        throw new Error("兑换券已过期");
+      }
 
       ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
     } catch (error) {

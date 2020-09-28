@@ -3,6 +3,7 @@ const md5 = require("md5");
 const xml2js = require("xml2js").parseString;
 const dayjs = require("dayjs");
 const Member = require("../../database/schema/user");
+const PaymentFlow = require("../../database/schema/paymentFlow");
 const appid = "wx45d398e7c87a97f6";
 const secret = "f4be67e5288b16599351f29497cbda50";
 let accessToken = "37_M22M9dVc3ra-Xb1L7v85p1B-23qhCIKrWM640LArd7CUvVdhgAdknSMNzZ4JdcU0hIUdGUN5nGFkDjgNTEfYioifAOFzanzzGaoTgtN8ZjqorXeK2SXlYWlFJY3wW8yV-mNKqOiePCu4vPiaVHZiAHAGSK";
@@ -60,6 +61,7 @@ const key = "7ba9aa8144e52d5412394fedfef538ce";
   }
 });
  */
+
 async function sendTemplate({ templateId, openid, data }) {
   const body = {
     touser: openid,
@@ -70,6 +72,19 @@ async function sendTemplate({ templateId, openid, data }) {
   const base1 = `https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${accessToken}`;
   const query = await superagent.post(base1).send(body);
   return query;
+}
+
+
+/**
+ * @description:  查询订单
+ * @param {type}
+ * @return:{ errcode: 0, errmsg: 'ok', msgid: 1536859103703187500 }
+ * @example
+ * *
+ */
+
+async function searchPayOrder() {
+
 }
 
 /* pc支付的时候调用 */
@@ -117,6 +132,15 @@ const getPCPay = async ({ _card, _member, price, desc }) => {
         }
       });
     });
+    if (r.return_code === "SUCCESS") {
+      const paymentFlow = new PaymentFlow();
+      paymentFlow.name = body.out_trade_no;
+      paymentFlow._member = _member;
+      paymentFlow.transactionId = r.prepay_id;
+      paymentFlow.price = price;
+      paymentFlow.save();
+    }
+
     return r;
   } catch (error) {
     console.log(error);
@@ -168,13 +192,22 @@ const getOpenid = async (code) => {
 //   console.log(dayjs(r.overtime).format("YYYY-MM-DD HH:mm:ss"));
 // });
 
-async function renewMember({ _member }) {
+async function renewMember({ _member, name }) {
   const r = await Member.findOneAndUpdate({
     _id: _member
   }, {
     $inc: {
       overtime: 365 * 60 * 60 * 1000 * 24
     },
+    status: true
+  }, {
+    new: true,
+    upsert: true,
+    runValidators: true
+  }).exec();
+  PaymentFlow.findOneAndUpdate({
+    name
+  }, {
     status: true
   }, {
     new: true,
