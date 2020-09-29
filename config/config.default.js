@@ -25,6 +25,10 @@ module.exports = appInfo => {
   const userConfig = {
     // myAppName: 'egg',
   };
+  config.multipart = {
+    fileExtensions: [".apk", ".pdf", ".blob", ".doc", "blob", "*", ".xlsx"] // 增加对 apk 扩展名的文件支持
+  };
+
   config.security = {
     csrf: false,
     domainWhiteList: ["http://localhost:8080"]

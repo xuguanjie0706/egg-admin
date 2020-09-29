@@ -1,8 +1,6 @@
 const xlsx = require("node-xlsx"); // excel 导出
 const fs = require("fs");
-
-const Until = require("../untils/doErr");
-
+const dayjs = require("dayjs");
 
 function loadXlsx(url) {
   return xlsx.parse(url);
@@ -11,12 +9,17 @@ function loadXlsx(url) {
 function writeXlsx(data) {
   const buffer = xlsx.build([{
     name: "sheet",
-    data: [data]
+    data
   }]);
-  fs.writeFile("./public/result.xls", buffer, function (err) {
-    if (err)
-      Until.doErr(err);
-    console.log("Write to xls has finished");
+  const url = `public/xlsx/${dayjs().format("YYYYMMDD")}.xlsx`;
+  return new Promise(resolve => {
+    fs.writeFile(`./app/${url}`, buffer, function (err) {
+      if (err) {
+        throw new Error("导出失败");
+        // doErr(err);
+      }
+      resolve(url);
+    });
   });
 }
 

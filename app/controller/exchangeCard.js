@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 "use strict";
 
 const { Controller } = require("egg");
@@ -5,9 +6,11 @@ const Model = require("../../database/schema/exchangeCard");
 const User = require("../../database/schema/user");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
+const { loadXlsx, writeXlsx } = require("../../untils/XlsxSDK");
 const { sendTemplate } = require("../../untils/WeixinSDK/index");
 const dayjs = require("dayjs");
 const { getPasswords } = require("../../untils");
+const mongoose = require("mongoose");
 
 
 class exchangeCardController extends Controller {
@@ -25,11 +28,12 @@ class exchangeCardController extends Controller {
       const data = ctx.request.body;
       const { count = 1, code = "" } = data;
       const arr = Array(Number(count)).fill({ ...data });
+
       const result = arr.map(item => {
         const _data = { ...item };
-        _data.card = code + Math.floor((+dayjs().format("YYYYMMDDHHmmss")) / 2 + Math.floor(Math.random() * 1000));
+        _data.card = code + Math.floor((+dayjs().format("YYYYMMDDHHmmss")) / 2 + Math.floor(Math.random() * 10000));
         _data.password = getPasswords(8);
-        _data.overtime = dayjs().add(1, "year").valueOf();
+        _data.overtime = dayjs(item.overtime).valueOf();
         return _data;
       });
       query = await Model.insertMany(result);
@@ -42,6 +46,108 @@ class exchangeCardController extends Controller {
       ctx.body = doErr(error);
     }
   }
+
+  /**
+    * @description: 查找兑换商品
+    * @param {type}
+    * @return:
+    */
+  async importData() {
+    let query = {};
+    const { ctx } = this;
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const opts = { session, new: true };
+    try {
+      const data = ctx.request.body;
+      const { cardfile, _goods, name, value, _member } = data;
+      const xlsxData = loadXlsx(`./app/${cardfile}`);
+
+      const resultXlsxData = xlsxData[0].data;
+      if (resultXlsxData.length > 5001) {
+        throw new Error("数据不能超过5000条");
+      }
+      const arr = [];
+      // console.log(resultXlsxData);
+      xlsxData[0].data.forEach((item, index) => {
+        if (index !== 0) {
+          const _data = {};
+          _data.name = name;
+          _data._goods = _goods;
+          _data.value = value;
+          _data._member = _member;
+          _data.card = item[0];
+          _data.password = item[1];
+          _data.overtime = dayjs(item.overtime).valueOf();
+          arr.push(_data);
+        }
+      });
+
+      // console.log(arr);
+      // Model.updateOne({ _id: "5f71beaf53e693df6444dcb4" },
+      //   { sort: 5 }, opts).exec();
+      query = await Model.insertMany(arr, opts);
+      await session.commitTransaction();
+
+      ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
+    } catch (error) {
+      await session.abortTransaction();
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    } finally {
+      await session.endSession();
+    }
+  }
+  /**
+     * @description: 导出
+     * @param {type}
+     * @return:
+     */
+  async deriveData() {
+    const { ctx } = this;
+    let query = {};
+    try {
+      const { token } = ctx.request.header;
+      const tokenData = await checkToken(token);
+      if (!tokenData) {
+        throw new Error("token失效或不存在");
+      }
+      const data = ctx.request.body;
+
+      // const page = data.pageNum ? data.pageNum - 1 : 0;
+      // const count = data.pageSize ? Number(data.pageSize) : 10;
+      const searchData = fitlerSearch(data);
+      if (tokenData.isUser !== "1") {
+        searchData._member = tokenData._id;
+      }
+
+      const result = await Model.find(searchData)
+        .sort({
+          sort: -1,
+          createdAt: -1
+        })
+        .populate({
+          path: "_goods",
+        })
+        .populate({
+          path: "_usegoods",
+        })
+        .exec();
+      const resultArr = [["卡号", "密码"]];
+      result.forEach(item => {
+        const arr = [item._doc.card, item._doc.password];
+        resultArr.push(arr);
+      });
+      // console.log(resultArr);
+      query = await writeXlsx(resultArr);
+      // ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
+      ctx.body = setData(query, null);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
   /**
    * @description: 分页带商品
    * @param {type}
@@ -161,23 +267,16 @@ class exchangeCardController extends Controller {
     }
   }
   /**
-      * @description: 查找兑换商品
-      * @param {type}
-      * @return:
+    * @description: 查找兑换商品
+    * @param {type}
+    * @return:
     */
   async getone() {
     let query = {};
     const { ctx } = this;
     try {
-      const { token } = ctx.request.header;
-      // const tokenData = await checkToken(token);
-      // if (!tokenData) {
-      //   throw new Error("token失效或不存在");
-      // }
       const data = ctx.request.body;
-      // console.log(data);
       const searchData = fitlerSearch(data);
-
       query = await Model.findOne(searchData)
         .sort({
           createdAt: -1
@@ -194,7 +293,6 @@ class exchangeCardController extends Controller {
       ctx.body = doErr(error);
     }
   }
-
 }
 
 

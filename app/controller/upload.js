@@ -114,6 +114,33 @@ class UploadController extends Controller {
       ctx.body = doErr(error);
     }
   }
+
+  async uploadExcel() {
+    const fileUrl = "public/excel";
+    const { ctx } = this;
+    let query = null;
+    try {
+      const stream = await ctx.getFileStream();
+      const _stream = stream.filename.split(".");
+      const target = `${fileUrl}/${dayjs().valueOf()}${Number.parseInt(
+        Math.random() * 10000
+      )}.${_stream[_stream.length - 1]}`;
+      const UPLOAD_DIR = path.resolve(__dirname, "..", target); // 大文件存储目录
+      const result = await new Promise((resolve, reject) => {
+        // 创建文件写入流
+        const remoteFileStrem = fs.createWriteStream(UPLOAD_DIR);
+        stream.pipe(remoteFileStrem);
+        remoteFileStrem.on("finish", () => {
+          resolve(target);
+        });
+      });
+      query = setData(result);
+      ctx.body = query;
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
 }
 
 
