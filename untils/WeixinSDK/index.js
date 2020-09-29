@@ -193,16 +193,27 @@ const getOpenid = async (code) => {
 // });
 
 async function renewMember({ _member, name }) {
-  const r = await Member.findOneAndUpdate({
-    _id: _member
-  }, {
+
+  const { overtime } = await Member.findOne({ _id: _member });
+  const today = dayjs().valueOf();
+  const olddata = overtime > today ? {
     $inc: {
       overtime: 365 * 60 * 60 * 1000 * 24
     },
     status: true
-  }, {
+  } :
+    {
+      $inc: {
+        overtime: today + 365 * 60 * 60 * 1000 * 24
+      },
+      status: true
+    };
+
+  const r = await Member.findOneAndUpdate({
+    _id: _member
+  }, olddata, {
     new: true,
-    upsert: true,
+    // upsert: true,
     runValidators: true
   }).exec();
   PaymentFlow.findOneAndUpdate({
