@@ -5,7 +5,7 @@ class UpdateCache extends Subscription {
   // 通过 schedule 属性来设置定时任务的执行间隔等配置
   static get schedule() {
     return {
-      interval: "2h", // 1 分钟间隔
+      interval: "1h", // 1 分钟间隔
       type: "all", // 指定所有的 worker 都需要执行
     };
   }
@@ -17,14 +17,25 @@ class UpdateCache extends Subscription {
       if (!role) {
         throw new Error("权限不存在");
       }
-      const users = await User.update({
+      // console.log(role);
+      // console.log(new Date().valueOf());
+      // const r = await User.find({
+      //   overtime: {
+      //     $lt: new Date().valueOf()
+      //   },
+      //   isUser: 2
+      // });
+      // console.log(r, 123);
+      const users = await User.updateMany({
         overtime: {
           $lt: new Date().valueOf()
         },
-        isUser: 2
+        isUser: "2"
       }, {
         _role: [role._id],
         status: false
+      }, {
+        new: true
       }).exec();
       console.log(users);
     } catch (error) {
