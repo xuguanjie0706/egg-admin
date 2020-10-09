@@ -22,7 +22,9 @@ class paymentFlowController extends Controller {
       const page = data.pageNum ? data.pageNum - 1 : 0;
       const count = data.pageSize ? Number(data.pageSize) : 10;
       const searchData = fitlerSearch(data);
-
+      if (tokenData.isUser !== "1") {
+        searchData._member = tokenData._id;
+      }
       // console.log(searchData);
       const skip = page * count;
 

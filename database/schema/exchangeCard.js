@@ -57,9 +57,13 @@ const ExchangeCardSchema = Schema({
   },
   status: {
     type: String,
-    enum: ["1", "2", "3"],
-    default: "1" //  1 未使用 2 已兑换 3 已完成
+    enum: ["1", "2", "3", "4"],
+    default: "1" //  1 未使用 2 已兑换 3 已发货 4 已完成
   },
+  isLook: {
+    type: Boolean,
+    default: true
+  }, // 是否展示
   overtime: {
     type: Number,
     required: [true, "过期时间必须填"]
@@ -71,6 +75,9 @@ const ExchangeCardSchema = Schema({
   up: {
     type: Number,
     default: 0
+  },
+  exchangeTime: {
+    type: Date
   }
 }, {
   timestamps: true,
@@ -79,7 +86,8 @@ const ExchangeCardSchema = Schema({
 
 
 ExchangeCardSchema.index({
-  card: 1
+  card: 1,
+  _member: 1
 }, {
   unique: true,
   sparse: true

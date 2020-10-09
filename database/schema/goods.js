@@ -27,6 +27,11 @@ const GoodsSchema = Schema({
   price: {
     type: Number,
   },
+  num: {
+    type: Number,
+    default: 0,
+    min: [0, "已清空"]
+  },
   sort: {
     type: Number,
     default: 0

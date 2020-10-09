@@ -30,7 +30,6 @@ class goodsController extends Controller {
       if (tokenData.isUser !== "1") {
         searchData._member = tokenData._id;
       }
-      console.log(searchData);
       const skip = page * count;
 
       const r1 = await Model.find(searchData).limit(count).skip(skip)
@@ -45,6 +44,44 @@ class goodsController extends Controller {
         total: r2
       };
       // ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
+      ctx.body = setData(query, null);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+  /**
+   * @description: 新增商品数量
+   * @param {type}
+   * @return:
+   */
+
+  async addNum() {
+    const { ctx } = this;
+    let query = {};
+    try {
+      const { token } = ctx.request.header;
+      const tokenData = await checkToken(token);
+      if (!tokenData) {
+        throw new Error("token失效或不存在");
+      }
+      const data = ctx.request.body;
+
+      const newdata = {
+        _id: data._id
+      };
+      const olddata = {
+        $inc: {
+          num: data.num
+        }
+      };
+
+      query = await Model.updateOne(newdata, olddata)
+        .exec();
+      if (!query.nModified) {
+        throw new Error("更新失败");
+      }
       ctx.body = setData(query, null);
     } catch (error) {
       ctx.logger.error(error);

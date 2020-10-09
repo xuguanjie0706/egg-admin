@@ -99,7 +99,7 @@ class exchangeCardController extends Controller {
     }
   }
   /**
-     * @description: 导出
+     * @description: 导出卡号密码
      * @param {type}
      * @return:
      */
@@ -149,6 +149,56 @@ class exchangeCardController extends Controller {
   }
 
   /**
+     * @description: 导出位置信息
+     * @param {type}
+     * @return:
+     */
+  async deriveAddressData() {
+    const { ctx } = this;
+    let query = {};
+    try {
+      const { token } = ctx.request.header;
+      const tokenData = await checkToken(token);
+      if (!tokenData) {
+        throw new Error("token失效或不存在");
+      }
+      const data = ctx.request.body;
+
+      // const page = data.pageNum ? data.pageNum - 1 : 0;
+      // const count = data.pageSize ? Number(data.pageSize) : 10;
+      const searchData = fitlerSearch(data);
+      if (tokenData.isUser !== "1") {
+        searchData._member = tokenData._id;
+      }
+
+      const result = await Model.find(searchData)
+        .sort({
+          sort: -1,
+          createdAt: -1
+        })
+        .populate({
+          path: "_goods",
+        })
+        .populate({
+          path: "_usegoods",
+        })
+        .exec();
+      const resultArr = [["卡号", "收件人", "电话", "地址"]];
+      result.forEach(item => {
+        const arr = [item._doc.card, item._doc.address.people, item._doc.address.mobile, item._doc.address.area.join("") + item._doc.address.mainArea];
+        resultArr.push(arr);
+      });
+      // console.log(resultArr);
+      query = await writeXlsx(resultArr);
+      // ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
+      ctx.body = setData(query, null);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+  /**
    * @description: 分页带商品
    * @param {type}
    * @return:
@@ -174,7 +224,6 @@ class exchangeCardController extends Controller {
 
       const r1 = await Model.find(searchData).limit(count).skip(skip)
         .sort({
-          sort: -1,
           createdAt: -1
         })
         .populate({
@@ -213,6 +262,7 @@ class exchangeCardController extends Controller {
         _id: data._id
       };
       const newdata = {
+        exchangeTime: new Date()
       };
       Object.keys(data).forEach(key => newdata[key] = data[key]);
       newdata.status = 2;
@@ -288,6 +338,191 @@ class exchangeCardController extends Controller {
       }
 
       ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+  /**
+    * @description: 卡片统计
+    * @param {type}
+    * @return:
+    */
+
+  async statistics() {
+    let query = {};
+    const { ctx } = this;
+    try {
+      const { token } = ctx.request.header;
+      const tokenData = await checkToken(token);
+      if (!tokenData) {
+        throw new Error("token失效或不存在");
+      }
+      const data = ctx.request.body;
+      const searchData = fitlerSearch(data);
+
+      if (tokenData.isUser !== "1") {
+        searchData._member = mongoose.Types.ObjectId(tokenData._id);
+      }
+      console.log(searchData);
+      const r1 = await Model.aggregate()
+        .match(searchData)
+        .group({
+          _id: "$name",
+          sumTotal: { $sum: 1 },
+          // useTotal: { $sum: "$status" },
+          // ids: { $push: "$_id" },
+          // statusLen: { $push: "$status" }
+        })
+        .sort({ _id: -1 });
+      const promises = r1.map(item => new Promise(resolve => Model.countDocuments({ name: item._id, status: 2 }).then(r => {
+        resolve(r);
+      })));
+
+      const r2 = await Promise.all(promises);
+      const r3 = r1.map((item, index) => {
+        item.useTotal = r2[index];
+        item._member = searchData._member;
+        return item;
+      });
+      query = {
+        list: r3,
+        total: 10
+      };
+      ctx.body = setData(query, null);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+  /**
+    * @description: 卡片统计批量
+    * @param {type}
+    * @return:
+    */
+  async statisticsUpdate() {
+    let query = {};
+    const { ctx } = this;
+    try {
+      const data = ctx.request.body;
+      const olddata = {
+        name: data.name
+      };
+      const newdata = {
+      };
+      if (data.overtime) {
+        newdata.overtime = data.overtime;
+        olddata.status = 1;
+      }
+      if (data.isLook !== undefined) {
+        newdata.isLook = data.isLook;
+      }
+      console.log(newdata);
+      query = await Model.updateMany(olddata, newdata, {
+        runValidators: true
+      })
+        .exec();
+      if (!query.nModified) {
+        throw new Error("更新失败");
+      }
+
+      ctx.body = setData(query, null);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+
+  /**
+    * @description: 批量发货
+    * @param {type}
+    * @return:
+    */
+
+  async orderSend() {
+    let query = {};
+    const { ctx } = this;
+    try {
+      const data = ctx.request.body;
+      const olddata = {
+        _id: {
+          $in: data.ids
+        }
+      };
+      const newdata = {
+        status: 3
+      };
+
+      query = await Model.updateMany(olddata, newdata)
+        .exec();
+      if (!query.nModified) {
+        throw new Error("更新失败");
+      }
+
+      ctx.body = setData(query, null);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+
+  /**
+    * @description: 首页统计
+    * @param {type}
+    * @return:
+    */
+
+  async homeStatistics() {
+    let query = {};
+    const { ctx } = this;
+    try {
+      const { token } = ctx.request.header;
+      const tokenData = await checkToken(token);
+      if (!tokenData) {
+        throw new Error("token失效或不存在");
+      }
+      const data = ctx.request.body;
+      const searchData = fitlerSearch(data);
+      // console.log(data);
+      if (tokenData.isUser !== "1") {
+        searchData._member = mongoose.Types.ObjectId(tokenData._id);
+      }
+      const r1 = Model.aggregate()
+        .match(searchData)
+        .group({
+          _id: "$name",
+        });
+      const r2 = Model.countDocuments({
+        _member: tokenData._id,
+      });
+      const r3 = Model.countDocuments({
+        _member: tokenData._id,
+        status: {
+          $ne: 1
+        }
+      });
+      const r4 = Model.countDocuments({
+        _member: tokenData._id,
+        exchangeTime: {
+          $lt: dayjs(dayjs().format("YYYY-MM-DD") + "23:59:59").toDate(),
+          $gt: dayjs(dayjs().format("YYYY-MM-DD") + "00:00:00").toDate()
+        }
+      });
+      const r5 = Model.countDocuments({
+        _member: tokenData._id,
+        exchangeTime: {
+          $lt: dayjs(dayjs().add(1, "month").format("YYYY-MM-DD") + "23:59:59").toDate(),
+          $gt: dayjs(dayjs().format("YYYY-MM-DD") + "00:00:00").toDate()
+        }
+      });
+      const promises = [r1, r2, r3, r4, r5];
+
+      query = await Promise.all(promises);
+
+      ctx.body = setData(query, null);
     } catch (error) {
       ctx.logger.error(error);
       ctx.body = doErr(error);
