@@ -4,6 +4,7 @@
 const { Controller } = require("egg");
 const Model = require("../../database/schema/exchangeCard");
 const User = require("../../database/schema/user");
+const Goods = require("../../database/schema/goods");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
 const { loadXlsx, writeXlsx } = require("../../untils/XlsxSDK");
@@ -23,7 +24,9 @@ class exchangeCardController extends Controller {
   async addSome() {
     const { ctx } = this;
     let query = {};
-
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const opts = { session, new: true };
     try {
       const data = ctx.request.body;
       const { count = 1, code = "" } = data;
@@ -36,14 +39,18 @@ class exchangeCardController extends Controller {
         _data.overtime = dayjs(item.overtime).valueOf();
         return _data;
       });
-      query = await Model.insertMany(result);
 
+      query = await Model.insertMany(result, opts);
+      await session.commitTransaction();
       query = setData(query, "ok", ["updatedAt"]);
 
       ctx.body = query;
     } catch (error) {
+      await session.abortTransaction();
       ctx.logger.error(error);
       ctx.body = doErr(error);
+    } finally {
+      await session.endSession();
     }
   }
 
@@ -253,6 +260,9 @@ class exchangeCardController extends Controller {
   async exchange() {
     const { ctx } = this;
     let query = {};
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const opts = { session, new: true };
     try {
       const data = ctx.request.body;
       if (+data.status !== 1) {
@@ -266,13 +276,27 @@ class exchangeCardController extends Controller {
       };
       Object.keys(data).forEach(key => newdata[key] = data[key]);
       newdata.status = 2;
+
       query = await Model.findOneAndUpdate(olddata, newdata, {
         new: true,
         upsert: true,
-        runValidators: true
+        runValidators: true,
+        ...opts
       }).populate({
         path: "_usegoods"
       });
+      const r = await Goods.findOneAndUpdate({ _id: query._usegoods._id }, {
+        $inc: {
+          num: -1
+        }
+      }, {
+        runValidators: true,
+        ...opts
+      });
+      if (r.num < 0) {
+        throw new Error("库存不足");
+      }
+      await session.commitTransaction();
       const memberData = await User.findOne({ _id: query._member }, "openid").exec();
       if (memberData.openid) {
         sendTemplate({
@@ -312,8 +336,11 @@ class exchangeCardController extends Controller {
 
       ctx.body = setData(query, null);
     } catch (error) {
+      await session.abortTransaction();
       ctx.logger.error(error);
       ctx.body = doErr(error);
+    } finally {
+      await session.endSession();
     }
   }
   /**

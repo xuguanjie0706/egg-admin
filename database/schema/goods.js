@@ -19,7 +19,8 @@ const GoodsSchema = Schema({
   }],
   _member: {
     type: Schema.Types.ObjectId,
-    ref: "User"
+    ref: "User",
+    required: [true, "所属人必须有"]
   },
   value: {
     type: String,
@@ -30,7 +31,7 @@ const GoodsSchema = Schema({
   num: {
     type: Number,
     default: 0,
-    min: [0, "已清空"]
+    min: [0, "库存已清空"]
   },
   sort: {
     type: Number,
@@ -43,6 +44,14 @@ const GoodsSchema = Schema({
 }, {
   timestamps: true,
   versionKey: false
+});
+
+GoodsSchema.index({
+  name: 1,
+  _member: 1
+}, {
+  unique: true,
+  sparse: true
 });
 
 
