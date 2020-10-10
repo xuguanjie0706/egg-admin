@@ -48,8 +48,14 @@ const ExchangeCardSchema = Schema({
   sendInfo: {
     type: Object,
   },
+  // address: {
+  //   type: Object,
+  // },
   address: {
-    type: Object,
+    people: String,
+    mobile: String,
+    area: Array,
+    mainArea: String
   },
   _area: {
     type: Schema.Types.ObjectId,

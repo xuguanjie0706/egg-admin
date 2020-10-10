@@ -370,6 +370,38 @@ class exchangeCardController extends Controller {
       ctx.body = doErr(error);
     }
   }
+
+  /**
+    * @description: 通过手机查单号
+    * @param {type}
+    * @return:
+    */
+  async getonebymobile() {
+    let query = {};
+    const { ctx } = this;
+    try {
+      const data = ctx.request.body;
+      const searchData = {
+        _member: data._member
+      };
+      if (data.mobile) {
+        searchData["address.mobile"] = data.mobile;
+      }
+      console.log(searchData);
+      query = await Model.find(searchData)
+        .sort({
+          exchangeTime: -1
+        })
+        .populate({
+          path: "_goods"
+        }).exec();
+      ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
   /**
     * @description: 卡片统计
     * @param {type}
