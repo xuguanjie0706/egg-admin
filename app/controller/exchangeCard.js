@@ -467,19 +467,20 @@ class exchangeCardController extends Controller {
       const data = ctx.request.body;
       const olddata = {
         name: data.name,
-        status: 1
+
       };
       const newdata = {
       };
       if (data.overtime) {
         newdata.overtime = data.overtime;
-
+        olddata.status = 1;
       }
       if (data.isLook !== undefined) {
         newdata.isLook = data.isLook;
       }
       if (data._goods) {
         newdata._goods = data._goods;
+        olddata.status = 1;
       }
       console.log(newdata);
       query = await Model.updateMany(olddata, newdata, {
