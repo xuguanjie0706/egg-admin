@@ -356,6 +356,7 @@ class exchangeCardController extends Controller {
     try {
       const data = ctx.request.body;
       const searchData = fitlerSearch(data);
+      searchData.isLook = true;
       query = await Model.findOne(searchData)
         .sort({
           createdAt: -1
@@ -389,7 +390,7 @@ class exchangeCardController extends Controller {
       if (data.mobile) {
         searchData["address.mobile"] = data.mobile;
       }
-      console.log(searchData);
+      // console.log(searchData);
       query = await Model.find(searchData)
         .sort({
           exchangeTime: -1
