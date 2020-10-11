@@ -12,6 +12,7 @@ const { sendTemplate } = require("../../untils/WeixinSDK/index");
 const dayjs = require("dayjs");
 const { getPasswords } = require("../../untils");
 const mongoose = require("mongoose");
+const { lte } = require("lodash");
 
 
 class exchangeCardController extends Controller {
@@ -470,10 +471,22 @@ class exchangeCardController extends Controller {
       const data = ctx.request.body;
       const olddata = {
         name: data.name,
-
       };
       const newdata = {
       };
+      if (data.newName !== data.name) {
+        newdata.name = data.newName;
+        query = await Model.updateMany(olddata, newdata, {
+          runValidators: true
+        })
+          .exec();
+        if (!query.nModified) {
+          throw new Error("更新失败");
+        }
+        olddata.name = data.newName;
+      }
+
+
       if (data.overtime) {
         newdata.overtime = data.overtime;
         olddata.status = 1;
@@ -485,12 +498,13 @@ class exchangeCardController extends Controller {
         newdata._goods = data._goods;
         olddata.status = 1;
       }
-      console.log(newdata);
+      // console.log(olddata, newdata);
       query = await Model.updateMany(olddata, newdata, {
         runValidators: true
       })
         .exec();
-      // console.log();
+      // if()
+      console.log(query);
       if (!query.nModified) {
         throw new Error("更新失败");
       }
