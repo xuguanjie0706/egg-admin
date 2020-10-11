@@ -12,7 +12,6 @@ const { sendTemplate } = require("../../untils/WeixinSDK/index");
 const dayjs = require("dayjs");
 const { getPasswords } = require("../../untils");
 const mongoose = require("mongoose");
-const { lte } = require("lodash");
 
 
 class exchangeCardController extends Controller {
@@ -180,8 +179,8 @@ class exchangeCardController extends Controller {
 
       const result = await Model.find(searchData)
         .sort({
-          sort: -1,
-          createdAt: -1
+          "address.mobile": -1,
+          // createdAt: -1
         })
         .populate({
           path: "_goods",
@@ -220,15 +219,23 @@ class exchangeCardController extends Controller {
         throw new Error("token失效或不存在");
       }
       const data = ctx.request.body;
-
+      // console.log(data);
+      if (data["address.mobile"] === "") {
+        delete data["address.mobile"];
+      }
+      if (data["address.people"] === "") {
+        delete data["address.people"];
+      }
+      // console.log(data);
       const page = data.pageNum ? data.pageNum - 1 : 0;
       const count = data.pageSize ? Number(data.pageSize) : 10;
       const searchData = fitlerSearch(data);
       searchData.isLook = true;
-
+      // console.log(searchData);
       if (tokenData.isUser !== "1") {
         searchData._member = tokenData._id;
       }
+
       const skip = page * count;
 
       const r1 = await Model.find(searchData).limit(count).skip(skip)

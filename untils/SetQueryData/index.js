@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-12-14 13:32:34
- * @lastTime: 2020-09-28 10:23:00
+ * @lastTime: 2020-10-11 22:19:20
  * @LastAuthor: xgj
  * @Description: In User Settings Edit
  * @FilePath: /egg/untils/SetQueryData/index.js
@@ -140,9 +140,13 @@ function fitlerSearch(data) {
           $in: data[item]
         };
       } else {
-        searchData[item] = {
-          $in: data[item]
-        };
+        if (data[item]) {
+          searchData[item] = {
+            $lt: data[item][1],
+            $gt: data[item][0]
+          };
+        }
+
       }
     }
   });

@@ -90,11 +90,12 @@ async function searchPayOrder() {
 /* pc支付的时候调用 */
 const getPCPay = async ({ _card, _member, price, desc }) => {
   const base = "https://api.mch.weixin.qq.com/pay/unifiedorder";
+  const tradeNo = dayjs().format("YYYYMMDDHHmmss") + Math.floor(Math.random() * 10000);
   const body = {
     "appid": "wx45d398e7c87a97f6",
     "mch_id": "1580632751",
     "nonce_str": Math.floor(Math.random() * 100000),
-    "out_trade_no": Math.floor((+dayjs().format("YYYYMMDDHHmmss")) + Math.floor(Math.random() * 1000)),
+    "out_trade_no": tradeNo,
     "notify_url": "http://pick.yystart.com/weixin/notifyUrlCall",
     "body": desc,
     "total_fee": price,
@@ -103,6 +104,7 @@ const getPCPay = async ({ _card, _member, price, desc }) => {
     "trade_type": "NATIVE",
     "attach": _member
   };
+  // console.log(body.out_trade_no);
 
   const sortArr = Object.keys(body).sort();
   let plain = "";
