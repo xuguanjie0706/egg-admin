@@ -68,7 +68,7 @@ class exchangeCardController extends Controller {
     const opts = { session, new: true };
     try {
       const data = ctx.request.body;
-      const { cardfile, _goods, name, value, _member } = data;
+      const { cardfile, _goods, name, value, _member, overtime } = data;
       const xlsxData = loadXlsx(`./app/${cardfile}`);
 
       const resultXlsxData = xlsxData[0].data;
@@ -86,7 +86,7 @@ class exchangeCardController extends Controller {
           _data._member = _member;
           _data.card = item[0];
           _data.password = item[1];
-          _data.overtime = dayjs(item.overtime).valueOf();
+          _data.overtime = dayjs(overtime).valueOf();
           arr.push(_data);
         }
       });
@@ -147,7 +147,7 @@ class exchangeCardController extends Controller {
         resultArr.push(arr);
       });
       // console.log(resultArr);
-      query = await writeXlsx(resultArr);
+      query = await writeXlsx(resultArr, "批量卡号列表");
       // ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
       ctx.body = setData(query, null);
     } catch (error) {
@@ -196,7 +196,7 @@ class exchangeCardController extends Controller {
         resultArr.push(arr);
       });
       // console.log(resultArr);
-      query = await writeXlsx(resultArr);
+      query = await writeXlsx(resultArr, "发货清单列表");
       // ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
       ctx.body = setData(query, null);
     } catch (error) {

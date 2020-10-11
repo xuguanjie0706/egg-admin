@@ -6,12 +6,12 @@ function loadXlsx(url) {
   return xlsx.parse(url);
 }
 
-function writeXlsx(data) {
+function writeXlsx(data, name = "") {
   const buffer = xlsx.build([{
     name: "sheet",
     data
   }]);
-  const url = `public/xlsx/${dayjs().format("YYYYMMDD")}.xlsx`;
+  const url = `public/xlsx/${name}${dayjs().format("YYYYMMDDHHmmss")}.xlsx`;
   return new Promise(resolve => {
     fs.writeFile(`./app/${url}`, buffer, function (err) {
       if (err) {
