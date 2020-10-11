@@ -423,7 +423,7 @@ class exchangeCardController extends Controller {
       if (tokenData.isUser !== "1") {
         searchData._member = mongoose.Types.ObjectId(tokenData._id);
       }
-      console.log(searchData);
+      // console.log(searchData);
       const r1 = await Model.aggregate()
         .match(searchData)
         .group({
@@ -434,7 +434,7 @@ class exchangeCardController extends Controller {
           // statusLen: { $push: "$status" }
         })
         .sort({ _id: -1 });
-      const promises = r1.map(item => new Promise(resolve => Model.countDocuments({ name: item._id, status: 2 }).then(r => {
+      const promises = r1.map(item => new Promise(resolve => Model.countDocuments({ name: item._id, status: { $ne: 1 } }).then(r => {
         resolve(r);
       })));
 
@@ -466,22 +466,27 @@ class exchangeCardController extends Controller {
     try {
       const data = ctx.request.body;
       const olddata = {
-        name: data.name
+        name: data.name,
+        status: 1
       };
       const newdata = {
       };
       if (data.overtime) {
         newdata.overtime = data.overtime;
-        olddata.status = 1;
+
       }
       if (data.isLook !== undefined) {
         newdata.isLook = data.isLook;
+      }
+      if (data._goods) {
+        newdata._goods = data._goods;
       }
       console.log(newdata);
       query = await Model.updateMany(olddata, newdata, {
         runValidators: true
       })
         .exec();
+      // console.log();
       if (!query.nModified) {
         throw new Error("更新失败");
       }
