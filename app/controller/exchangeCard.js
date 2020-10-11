@@ -171,7 +171,6 @@ class exchangeCardController extends Controller {
         throw new Error("token失效或不存在");
       }
       const data = ctx.request.body;
-
       // const page = data.pageNum ? data.pageNum - 1 : 0;
       // const count = data.pageSize ? Number(data.pageSize) : 10;
       const searchData = fitlerSearch(data);
@@ -191,9 +190,9 @@ class exchangeCardController extends Controller {
           path: "_usegoods",
         })
         .exec();
-      const resultArr = [["卡号", "收件人", "电话", "地址", "商品"]];
+      const resultArr = [["商品", "卡号", "收件人", "电话", "地址"]];
       result.forEach(item => {
-        const arr = [item._doc.card, item._doc.address.people, item._doc.address.mobile, item._doc.address.area.join("") + item._doc.address.mainArea, item._doc._usegoods.name];
+        const arr = [item._doc._usegoods.name, item._doc.card, item._doc.address.people, item._doc.address.mobile, item._doc.address.area.join("") + item._doc.address.mainArea];
         resultArr.push(arr);
       });
       // console.log(resultArr);
@@ -498,7 +497,7 @@ class exchangeCardController extends Controller {
         newdata._goods = data._goods;
         olddata.status = 1;
       }
-      // console.log(olddata, newdata);
+      console.log(olddata, newdata);
       query = await Model.updateMany(olddata, newdata, {
         runValidators: true
       })
