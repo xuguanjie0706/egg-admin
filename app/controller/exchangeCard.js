@@ -128,6 +128,8 @@ class exchangeCardController extends Controller {
         searchData._member = tokenData._id;
       }
 
+      searchData.isLook = true;
+
       const result = await Model.find(searchData)
         .sort({
           sort: -1,
