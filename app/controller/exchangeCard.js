@@ -31,10 +31,10 @@ class exchangeCardController extends Controller {
       const data = ctx.request.body;
       const { count = 1, code = "" } = data;
       const arr = Array(Number(count)).fill({ ...data });
-
-      const result = arr.map(item => {
+      const random = Math.floor(Math.random() * 10000);
+      const result = arr.map((item, index) => {
         const _data = { ...item };
-        _data.card = code + Math.floor((+dayjs().format("YYYYMMDDHHmmss")) / 2 + Math.floor(Math.random() * 10000));
+        _data.card = code + Math.floor((+dayjs().format("YYYYMMDDHHmmss")) / 2 + random + index);
         _data.password = getPasswords(8);
         _data.overtime = dayjs(item.overtime).valueOf();
         return _data;
@@ -190,9 +190,9 @@ class exchangeCardController extends Controller {
           path: "_usegoods",
         })
         .exec();
-      const resultArr = [["卡号", "收件人", "电话", "地址"]];
+      const resultArr = [["卡号", "收件人", "电话", "地址", "商品"]];
       result.forEach(item => {
-        const arr = [item._doc.card, item._doc.address.people, item._doc.address.mobile, item._doc.address.area.join("") + item._doc.address.mainArea];
+        const arr = [item._doc.card, item._doc.address.people, item._doc.address.mobile, item._doc.address.area.join("") + item._doc.address.mainArea, item._doc._usegoods.name];
         resultArr.push(arr);
       });
       // console.log(resultArr);
