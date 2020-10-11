@@ -192,11 +192,22 @@ class exchangeCardController extends Controller {
         })
         .exec();
       const resultArr = [["商品", "卡号", "收件人", "电话", "地址"]];
+      const obj = {};
       result.forEach(item => {
         const arr = [item._doc._usegoods.name, item._doc.card, item._doc.address.people, item._doc.address.mobile, item._doc.address.area.join("") + item._doc.address.mainArea];
+        if (!obj[item._doc._usegoods.name]) {
+          obj[item._doc._usegoods.name] = 1;
+        } else {
+          obj[item._doc._usegoods.name] = obj[item._doc._usegoods.name] + 1;
+        }
         resultArr.push(arr);
       });
-      // console.log(resultArr);
+      resultArr.unshift(["详情"]);
+      resultArr.unshift([]);
+      Object.keys(obj).forEach(item => resultArr.unshift([item, obj[item]]));
+      resultArr.unshift(["商品", "数量"]);
+      resultArr.unshift(["汇总"]);
+      // console.log(obj);
       query = await writeXlsx(resultArr, "发货清单列表");
       // ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
       ctx.body = setData(query, null);
