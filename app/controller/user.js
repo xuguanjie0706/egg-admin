@@ -192,7 +192,8 @@ class UserController extends Controller {
           select: "name"
         })
         .sort({
-          createdAt: -1
+          status: -1,
+          overtime: 1
         }).exec();
       const r2 = await Model.countDocuments(searchData).exec();
       query = {
