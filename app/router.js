@@ -28,4 +28,6 @@ module.exports = async app => {
       }
     }
   }
+
+  router.get("/", controller.show.index);
 };

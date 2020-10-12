@@ -5,6 +5,7 @@
 /**
  * @param {Egg.EggAppInfo} appInfo app info
  */
+// const path = require("path");
 module.exports = appInfo => {
   /**
    * built-in config
@@ -27,6 +28,20 @@ module.exports = appInfo => {
   };
   config.multipart = {
     fileExtensions: [".apk", ".pdf", ".blob", ".doc", "blob", "*", ".xlsx"] // 增加对 apk 扩展名的文件支持
+  };
+
+  // config.view = {
+  //   root: [
+  //     path.join(appInfo.baseDir, "app/view"),
+  //     // path.join(appInfo.baseDir, "path/to/another"),
+  //   ].join(",")
+  // };
+
+  exports.view = {
+    defaultViewEngine: "nunjucks",
+    mapping: {
+      ".html": "nunjucks" // 左边写成.html后缀，会自动渲染.html文件
+    },
   };
 
   config.security = {

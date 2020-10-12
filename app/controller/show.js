@@ -1,3 +1,11 @@
+/*
+ * @Author: xgj
+ * @since: 2020-09-25 23:19:49
+ * @lastTime: 2020-10-12 22:22:33
+ * @LastAuthor: xgj
+ * @FilePath: /egg/app/controller/show.js
+ * @message:
+ */
 
 "use strict";
 // const Model = require("../../database/schema/role");
@@ -28,7 +36,9 @@ class ShowController extends Controller {
   async index() {
     const { ctx } = this;
     const query = {};
-    ctx.body = 123;
+    await ctx.render("index");
+    // ctx.body = "123";
+    // ctx.body = "<script>location.herf ='http://pick.yystart.com/#/admin' </script>";
   }
 
   async a() {
