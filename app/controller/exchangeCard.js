@@ -5,6 +5,7 @@ const { Controller } = require("egg");
 const Model = require("../../database/schema/exchangeCard");
 const User = require("../../database/schema/user");
 const Goods = require("../../database/schema/goods");
+const PaymentFlow = require("../../database/schema/paymentFlow");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
 const { getToken, checkToken } = require("../../untils/TokenSDK/index");
 const { loadXlsx, writeXlsx } = require("../../untils/XlsxSDK");
@@ -620,6 +621,71 @@ class exchangeCardController extends Controller {
         }
       });
       const promises = [r1, r2, r3, r4, r5];
+
+      query = await Promise.all(promises);
+
+      ctx.body = setData(query, null);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+  /**
+     * @description: 管理员首页统计
+     * @param {type}
+     * @return:
+     */
+  async homeStatisticsAdmin() {
+    let query = {};
+    const { ctx } = this;
+    try {
+      const { token } = ctx.request.header;
+      const tokenData = await checkToken(token);
+      if (!tokenData) {
+        throw new Error("token失效或不存在");
+      }
+      const data = ctx.request.body;
+      const searchData = fitlerSearch(data);
+      // console.log(data);
+      if (tokenData.isUser !== "1") {
+        throw new Error("没有权限");
+      }
+      // const r1 = Model.aggregate()
+      //   .match(searchData)
+      //   .group({
+      //     _id: "$name",
+      //   });
+      // 用户总数
+      const r1 = User.countDocuments({
+        isUser: 2
+      });
+      // 卡片总数
+      const r2 = Model.countDocuments({
+        // _member: tokenData._id,
+      });
+      // 卡片兑换总数
+      const r3 = Model.countDocuments({
+        // _member: tokenData._id,
+        status: {
+          $ne: 1
+        }
+      });
+      // 今天新增会员
+      const r4 = User.countDocuments({
+        exchangeTime: {
+          $lt: dayjs(dayjs().format("YYYY-MM-DD") + "23:59:59").toDate(),
+          $gt: dayjs(dayjs().format("YYYY-MM-DD") + "00:00:00").toDate()
+        }
+      });
+      // 收费总数
+      const r5 = PaymentFlow.aggregate()
+        .match({ status: true })
+        .group({
+          _id: "$sort",
+          price: { $sum: "$price" },
+        });
+      const promises = [r5, r1, r2, r3, r4];
 
       query = await Promise.all(promises);
 
