@@ -2,6 +2,7 @@
 
 const { Controller } = require("egg");
 const Model = require("../../database/schema/user");
+const Role = require("../../database/schema/role");
 const Verification = require("../../database/schema/verification");
 const dayjs = require("dayjs");
 const { doErr, fitlerSearch, setData } = require("../../untils/SetQueryData/index");
@@ -382,6 +383,47 @@ class UserController extends Controller {
         }).exec();
 
       ctx.body = setData(query, null, ["createdAt", "updatedAt"]);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.body = doErr(error);
+    }
+  }
+
+  /**
+   * @description:  商户续期
+   * @param {type}
+   * @return:
+  */
+
+  async renewMember() {
+    let query = {};
+    const { ctx } = this;
+    try {
+
+      const role = await Role.findOne({
+        name: "商户"
+      });
+      if (!role) {
+        throw new Error("权限不存在");
+      }
+      const data = ctx.request.body;
+      const olddata = {
+        _id: data._id
+      };
+      const newdata = {
+        overtime: data.overtime,
+        status: true,
+        _role: role._id
+      };
+
+      query = await Model.updateMany(olddata, newdata)
+        .exec();
+
+      if (!query.nModified) {
+        throw new Error("更新失败");
+      }
+
+      ctx.body = setData(query, null);
     } catch (error) {
       ctx.logger.error(error);
       ctx.body = doErr(error);
