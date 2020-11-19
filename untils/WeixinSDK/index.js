@@ -3,6 +3,7 @@ const md5 = require("md5");
 const xml2js = require("xml2js").parseString;
 const dayjs = require("dayjs");
 const Member = require("../../database/schema/user");
+const Role = require("../../database/schema/role");
 const PaymentFlow = require("../../database/schema/paymentFlow");
 const appid = "wx45d398e7c87a97f6";
 const secret = "f4be67e5288b16599351f29497cbda50";
@@ -198,17 +199,25 @@ async function renewMember({ _member, name }) {
 
   const { overtime } = await Member.findOne({ _id: _member });
   const today = dayjs().valueOf();
+  const role = await Role.findOne({
+    name: "商户"
+  });
+  if (!role) {
+    throw new Error("权限不存在");
+  }
   const olddata = overtime > today ? {
     $inc: {
       overtime: 365 * 60 * 60 * 1000 * 24
     },
-    status: true
+    status: true,
+    _role: role._id
   } :
     {
       $inc: {
         overtime: today + 365 * 60 * 60 * 1000 * 24
       },
-      status: true
+      status: true,
+      _role: role._id
     };
 
   const r = await Member.findOneAndUpdate({
