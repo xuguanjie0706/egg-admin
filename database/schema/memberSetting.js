@@ -15,6 +15,10 @@ const MemberSettingSchema = Schema({
     type: String,
     // required: [true, "图片必须添加"]
   },
+  desc: {
+    type: String,
+    // required: [true, "图片必须添加"]
+  },
   phone: {
     type: String,
   },
