@@ -94,28 +94,28 @@ const UserSchema = Schema({
   headimgurl: String, // 头像
   nickname: String, // 昵称
   // invite: String, // 邀请码
-  // total: {
-  //   type: Number,
-  //   min: 0,
-  //   default: 0.00,
-  //   get: v => v.toFixed(2),
-  //   set: v => v.toFixed(2),
-  //   validate: {
-  //     validator: numValidator,
-  //     message: "金额不能少于0块"
-  //   },
-  // }, // 总金额
-  // balance: {
-  //   type: Number,
-  //   min: 0,
-  //   default: 0.00,
-  //   get: v => v.toFixed(2),
-  //   set: v => v.toFixed(2),
-  //   validate: {
-  //     validator: numValidator,
-  //     message: "金额不能少于0块"
-  //   },
-  // }, // 余额
+  total: {
+    type: Number,
+    min: 0,
+    default: 0.00,
+    get: v => v.toFixed(2),
+    set: v => v.toFixed(2),
+    validate: {
+      validator: numValidator,
+      message: "金额不能少于0块"
+    },
+  }, // 总金额
+  balance: {
+    type: Number,
+    min: 0,
+    default: 0.00,
+    get: v => v.toFixed(2),
+    set: v => v.toFixed(2),
+    validate: {
+      validator: numValidator,
+      message: "金额不能少于0块"
+    },
+  }, // 余额
   // up: {
   //   type: Number,
   //   default: 0

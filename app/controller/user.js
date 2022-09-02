@@ -50,6 +50,7 @@ class UserController extends Controller {
     let query = {};
     try {
       const data = ctx.request.body;
+      console.log(data)
       const searchData = {
         name: data.name,
         password: data.password,
@@ -113,7 +114,7 @@ class UserController extends Controller {
         name: data.name,
         password: data.password,
         isUsed: 1,
-        isUser: data.isUser
+        isUser: "1"
       };
 
 

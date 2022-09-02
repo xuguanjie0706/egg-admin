@@ -1,3 +1,11 @@
+/*
+ * @Author: xgj
+ * @since: 2022-08-30 16:02:09
+ * @lastTime: 2022-08-30 16:23:20
+ * @LastAuthor: xgj
+ * @FilePath: /fsafa/egg-admin/database/init.js
+ * @message: 
+ */
 const mongoose = require("mongoose");
 // const db = "mongodb://129.28.165.95:27017/hello"
 // var db = 'mongodb://xu:123abc@122.51.113.201:27017/ding?authSource=admin';
@@ -30,7 +38,7 @@ exports.initSchemas = () => {
 
 exports.connect = (mode = "local") => {
 
-  const db = mode === "local" ? "mongodb://xu:123abc@116.85.36.207:20001/hello?authSource=admin" : "mongodb://xu:123abc@116.85.36.207:20001/base?authSource=admin";
+  const db = mode === "local" ? "mongodb://xu:123abc@106.14.182.16:20001/halove?authSource=admin" : "mongodb://xu:123abc@106.14.182.16:20001/halove?authSource=admin";
   // 连接数据库
   mongoose.connect(db);
 
