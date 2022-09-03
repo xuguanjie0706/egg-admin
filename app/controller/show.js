@@ -1,7 +1,7 @@
 /*
  * @Author: xgj
  * @since: 2022-08-30 16:02:09
- * @lastTime: 2022-09-01 21:43:04
+ * @lastTime: 2022-09-03 13:55:24
  * @LastAuthor: xgj
  * @FilePath: /egg-admin/app/controller/show.js
  * @message: 
@@ -9,6 +9,7 @@
 
 "use strict";
 const Model = require("../../database/schema/goods");
+const Matter = require("../../database/schema/matter");
 
 const { Controller } = require("egg");
 
@@ -36,6 +37,19 @@ class ShowController extends Controller {
     ctx.body = {
       code: 0,
       data: a
+    };
+  }
+
+  async allPrice() {
+    const { ctx } = this;
+    const a = await Model.find()
+
+    const matter = Matter.aggregate().match({
+      status: "1"
+    })
+    ctx.body = {
+      code: 0,
+      data: matter
     };
   }
 }

@@ -1,7 +1,7 @@
 /*
  * @Author: xgj
  * @since: 2022-09-01 01:39:03
- * @lastTime: 2022-09-03 02:25:58
+ * @lastTime: 2022-09-03 15:48:25
  * @LastAuthor: xgj
  * @FilePath: /egg-admin/app/controller/order.js
  * @message: 
@@ -156,7 +156,7 @@ class OrderController extends Controller {
             total: diffPrice * 0.4
           }
         })
-        await User.updateMany({ name: "weishao" }, {
+        await User.updateMany({ name: "13486843355" }, {
           $inc: {
             balance: diffPrice * 0.3,
             total: diffPrice * 0.3
@@ -175,6 +175,7 @@ class OrderController extends Controller {
       ctx.body = doErr(error);
     }
   }
+
 }
 
 

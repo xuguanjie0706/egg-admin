@@ -1,7 +1,7 @@
 /*
  * @Author: xgj
  * @since: 2022-09-01 01:39:03
- * @lastTime: 2022-09-01 23:39:40
+ * @lastTime: 2022-09-03 15:37:15
  * @LastAuthor: xgj
  * @FilePath: /egg-admin/app/controller/matter.js
  * @message: 
@@ -59,6 +59,53 @@ class MatterController extends Controller {
       ctx.logger.error(error);
       ctx.body = doErr(error);
     }
+  }
+
+  /*
+   * @description: 卖出订单
+   * @param {type}
+   * @return:
+   */
+  async allPrice() {
+    const { ctx } = this;
+    // const a = await Model.find()
+    const matter = await Model.aggregate().match({
+      status: "1"
+    }).lookup({
+      from: "goods",
+      localField: "_goods",
+      foreignField: "_id",
+      as: "goodModal"
+    })
+      .group({
+        _id: "$status",
+        allprice: {
+          $sum: "$price",
+        }, //总库存价格
+        allnum: {
+          $sum: 1,
+        },//总库存数量
+      })
+    const matter1 = await Model.aggregate().match({})
+      .group({
+        _id: "sort",
+        allbuyprice: {
+          $sum: "$price",
+        },//总买入价格
+        allbuynum: {
+          $sum: 1,
+        }//总数量
+      })
+
+    const matter2 = await Model.find({ status: "1" }).populate({ path: "_goods" })
+    console.log(matter2)
+    const allmailpirce = matter2.reduce((x, y) => x + y._doc._goods.mailPrice, 0)
+
+    ctx.body = {
+      code: 0,
+      data: { ...matter[0], ...matter1[0], allmailpirce }
+      // data: matter2
+    };
   }
 
 }
