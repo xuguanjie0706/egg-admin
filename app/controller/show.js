@@ -1,7 +1,7 @@
 /*
  * @Author: xgj
  * @since: 2022-08-30 16:02:09
- * @lastTime: 2022-09-03 13:55:24
+ * @lastTime: 2022-09-04 16:28:34
  * @LastAuthor: xgj
  * @FilePath: /egg-admin/app/controller/show.js
  * @message: 
@@ -10,8 +10,25 @@
 "use strict";
 const Model = require("../../database/schema/goods");
 const Matter = require("../../database/schema/matter");
+const User = require("../../database/schema/user");
 
 const { Controller } = require("egg");
+
+
+setTimeout(() => {
+  init()
+}, 2000);
+async function init() {
+  const b = await Matter.find({ status: "2" })
+  console.log(b)
+  const a = await Matter.updateMany({}, { status: "1" })
+  console.log(a)
+
+  await User.updateMany({}, {
+    balance: 0,
+    total: 0
+  })
+}
 
 class ShowController extends Controller {
 
@@ -42,14 +59,28 @@ class ShowController extends Controller {
 
   async allPrice() {
     const { ctx } = this;
-    const a = await Model.find()
 
-    const matter = Matter.aggregate().match({
+    const matterList = await Model.find()
+
+    const b = await Matter.aggregate().match({
       status: "1"
+    }).group({
+      _id: "$_goods",
+      num: {
+        $sum: 1
+      },
+    })
+    let matterObj = {}
+    b.forEach(item => {
+      matterObj[item._id] = item.num
+    })
+    matterList.map(item => {
+      item._doc.num = matterObj[item._id] || 0
+      return item
     })
     ctx.body = {
       code: 0,
-      data: matter
+      data: matterList
     };
   }
 }
