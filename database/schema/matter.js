@@ -1,7 +1,7 @@
 /*
  * @Author: xgj
  * @since: 2022-08-30 16:02:09
- * @lastTime: 2022-09-02 00:06:07
+ * @lastTime: 2022-09-04 13:42:11
  * @LastAuthor: xgj
  * @FilePath: /egg-admin/database/schema/matter.js
  * @message: 
@@ -28,7 +28,7 @@ const MatterSchema = Schema({
   },// 定价
   status: {
     type: String,
-    enum: ["1", "2"],
+    enum: ["1", "2", "3"],
     default: "1", //1正常 2:卖出 3:销毁
   },
   _buyOrder: {

@@ -1,7 +1,7 @@
 /*
  * @Author: xgj
  * @since: 2022-09-01 01:39:03
- * @lastTime: 2022-09-03 15:48:25
+ * @lastTime: 2022-09-04 13:41:42
  * @LastAuthor: xgj
  * @FilePath: /egg-admin/app/controller/order.js
  * @message: 
@@ -134,7 +134,7 @@ class OrderController extends Controller {
         runValidators: true
       });
 
-      const matter = await Matter.find({ status: "1" }).populate({
+      const matter = await Matter.find({ status: "1", _goods: data._goods }).populate({
         path: "_goods",
       }).limit(newdata.num).sort({
         sort: -1,
@@ -142,14 +142,15 @@ class OrderController extends Controller {
       })
 
       matter.map(async (item) => {
-        await Matter.updateMany({
-          _id: item._doc._id
+        console.log(item._id)
+        const a = await Matter.updateOne({
+          _id: item._id
         }, {
           status: "2",
-          mailprice: item._doc._goods.mailPrice,
+          mailprice: item._goods.mailPrice,
           _mailOrder: order._id
         })
-        const diffPrice = (item._doc._goods.mailPrice - item._doc.price)
+        const diffPrice = (item._goods.mailPrice - item.price)
         await User.updateMany({ name: "18079442433" }, {
           $inc: {
             balance: diffPrice * 0.4,
